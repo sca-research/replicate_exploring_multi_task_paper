@@ -39,8 +39,8 @@ file.close()
 
 
 DATASET_FOLDER  = parameters['DATASET_FOLDER']
-METRICS_FOLDER = DATASET_FOLDER + 'metrics/' 
-MODEL_FOLDER = DATASET_FOLDER + 'models/' 
+METRICS_FOLDER = DATASET_FOLDER + 'metrics_replicate/' 
+MODEL_FOLDER = DATASET_FOLDER + 'models_replicate/' 
 TRACES_FOLDER = DATASET_FOLDER + 'traces/'
 REALVALUES_FOLDER = DATASET_FOLDER + 'real_values/'
 POWERVALUES_FOLDER = DATASET_FOLDER + 'powervalues/'
