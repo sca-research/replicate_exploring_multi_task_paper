@@ -11,26 +11,26 @@ from scipy import stats
 import pickle
 import h5py
 
-from tqdm import tqdm
+
 import numpy as np
 import re
 import scipy.signal as sig
 import argparse
-from scalib.metrics import SNR
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
-from tensorflow.keras.models import load_model 
+
 import tensorflow as tf
 import tensorflow.keras.backend as K
 import tensorflow.experimental.numpy as tnp
-from tensorflow.keras.models import Model, Sequential
-from tensorflow.keras.layers import Flatten,AlphaDropout,LayerNormalization, Dense, Lambda,Conv1D, AveragePooling1D, BatchNormalization
+
+from tensorflow.keras.layers import LayerNormalization,BatchNormalization
 
 tnp.experimental_enable_numpy_behavior()
-from scalib.modeling import LDAClassifier
+
 from utils.generate_intermediate_values import save_real_values, multGF256
 import tensorflow_probability as tfp
 from gmpy2 import f_divmod_2exp
-from numba import njit
+
 # Opening dataset specific variables 
 
 file = open('utils/dataset_parameters','rb')
@@ -80,7 +80,7 @@ class PoolingCrop(tf.keras.layers.Layer):
         self.use_dropout = use_dropout
         if self.use_dropout:
             self.dropout = tf.keras.layers.AlphaDropout(0.01)
-        self.bn = tf.keras.layers.BatchNormalization()
+        self.bn = BatchNormalization()
         
         
     
@@ -298,21 +298,14 @@ def load_model_from_target(structure , target,combine = False, window_type = 'cl
     structure.load_weights(model_file)
     return structure    
 
-def load_model_unmasking_from_target(structure , target, window_type = 'classic',input_layer = 'classic'):
-    model_file  = MODEL_FOLDER+ ('{}_{}_wt{}_{}.h5'.format(target ,'cnn_unmasking',window_type,input_layer)  )
+def load_model_multi_target(structure ):
+    model_file  = MODEL_FOLDER+ ('{}_{}.h5'.format('all_t1' ,'cnn_multi_target')  )
     print('Loading model {}'.format(model_file))
     structure.load_weights(model_file)
     return structure   
 
-
-def load_model_composed_from_target(structure , target, window_type = 'classic',input_layer = 'classic'):
-    model_file  = MODEL_FOLDER+ ('{}_{}_wt{}_{}.h5'.format(target ,'cnn_unmasking_multiple_shares',window_type,input_layer)  )
-    print('Loading model {}'.format(model_file))
-    structure.load_weights(model_file)
-    return structure   
-
-def load_model_propagation_from_target(structure, window_type = 'classic',input_layer = 'classic',shared = False):
-    model_file  = MODEL_FOLDER+ ('all_k1_{}_wt{}_{}.h5'.format('cnn_propagation{}'.format('' if not shared else '_shared'),window_type,input_layer ))
+def load_model_hierarchical(structure):
+    model_file  = MODEL_FOLDER+ ('{}_{}.h5'.format('all_t1' ,'cnn_hierarchical')  )
     print('Loading model {}'.format(model_file))
     structure.load_weights(model_file)
     return structure  

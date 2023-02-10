@@ -4,15 +4,19 @@ Created on Sat Mar  5 11:32:19 2022
 
 @author: martho
 """
-from utility import *
+
+from utility import XorLayer, MultiLayer
+from utility import load_model_hierarchical, load_model_from_target, load_model_multi_target, read_from_h5_file  ,get_hot_encode, METRICS_FOLDER
+from utility import get_rank, get_pow_rank
 
 from gmpy2 import mpz,mul
-
+from tqdm import tqdm
 from train_models import cnn_best,cnn_multi_target,cnn_hierarchical
 
-
-
-
+import numpy as np
+import tensorflow as tf
+import pickle 
+import argparse
 
 
 
@@ -47,10 +51,10 @@ class Attack:
                 self.models['rin'] = load_model_from_target(model_struct,'rin') 
         elif multi:
             model_struct_propagation = cnn_multi_target()
-            self.models['multi'] = load_model_propagation_from_target(model_struct_propagation,shared = False)
+            self.models['multi'] = load_model_multi_target(model_struct_propagation,shared = False)
         elif hierarchical:
             model_struct_propagation = cnn_hierarchical()
-            self.models['hierarchical'] = load_model_propagation_from_target(model_struct_propagation,shared = True)
+            self.models['hierarchical'] = load_model_hierarchical(model_struct_propagation,shared = True)
         else:
             print('Im confused, you didnt chose a model type --INDIV, --MULTI, --HIERARCHICAL')
             return
@@ -92,7 +96,7 @@ class Attack:
         predictions_alpha = np.empty((self.n_total_attack_traces,256))
             
         plaintexts = metadata['plaintexts']
-        keys =  metadata['keys']
+        
         self.key = 0x00112233445566778899AABBCCDDEEFF
         master_key =[0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
                           0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF ]  
@@ -211,7 +215,7 @@ class Attack:
                print('========= Trace {} ========='.format(count_trace))
                rank_string = ""
                total_rank = mpz(1)
-               ranking = np.empty((16,256),dtype = np.float32)
+               
                
                for byte in range(16):
                    self.subkeys_guess[byte] += np.log(self.predictions[byte][trace] + 1e-36)
