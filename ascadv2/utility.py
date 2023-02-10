@@ -413,13 +413,11 @@ def load_dataset_multi(n_traces = None,dataset = 'training',encoded_labels = Tru
         permutations_val = np.array(labels_dict_val['p'],dtype = np.uint8)
         X_validation_dict = {}  
 
-    all_inputs = None
-    all_inputs_val = None
+
 
 
     if print_logs :
         print('Loaded inputs')    
-        print('Shape : ',all_inputs.shape)
         
 
     real_values_t1_rin = np.array(labels_dict['t1^rin'],dtype = np.uint8)[:n_traces]
@@ -466,7 +464,7 @@ def load_dataset_multi(n_traces = None,dataset = 'training',encoded_labels = Tru
 
 
 
-def load_dataset_hierarchical(n_traces = 2500000,load_masks = False,dataset = 'training',encoded_labels = True,print_logs = True):
+def load_dataset_hierarchical(n_traces = 250000,dataset = 'training',encoded_labels = True,print_logs = True):
 
     training = dataset == 'training' 
     if print_logs :
@@ -490,9 +488,6 @@ def load_dataset_hierarchical(n_traces = 2500000,load_masks = False,dataset = 't
         
         permutations_val = np.array(labels_dict_val['p'],dtype = np.uint8)
         X_validation_dict = {}  
-
-    all_inputs = None
-    all_inputs_val = None
 
 
     if print_logs :

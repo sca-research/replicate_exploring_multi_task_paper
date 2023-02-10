@@ -285,10 +285,9 @@ def train_model(training_type,variable,intermediate):
     else:
         X_profiling , validation_data = load_dataset_hierarchical(n_traces = n_traces,dataset = 'training') 
         model_t = 'cnn_hierarchical'
-    window =  X_profiling.element_spec[0]['traces'].shape[0]
     
     if model_t == "cnn_best" :
-        model = cnn_best(input_length =window,dense_units=1000 ,name = intermediate.replace('^','_') if '^' in intermediate else intermediate)
+        model = cnn_best(input_length =200 if '^' in intermediate else 4749  ,name = intermediate.replace('^','_') if '^' in intermediate else intermediate)
     elif model_t == 'cnn_multi_target':
         model = cnn_multi_target()        
     elif model_t == 'cnn_hierarchical':
