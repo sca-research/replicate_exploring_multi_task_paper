@@ -355,7 +355,7 @@ if __name__ == "__main__":
     if CLASSICAL:   
        training_types = ['classical']
        TARGETS['classical'] = ['p','t1^rin','rin','alpha'] 
-       BYTES = [i for i in range(16)]
+       BYTES = ['all']
     elif MULTI:
         training_types = ['multi']
         TARGETS['multi'] = ['t1']
