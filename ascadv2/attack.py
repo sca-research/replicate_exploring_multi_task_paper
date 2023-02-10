@@ -4,15 +4,19 @@ Created on Sat Mar  5 11:32:19 2022
 
 @author: martho
 """
-from utility import *
+
+from utility import XorLayer, MultiLayer
+from utility import load_model_hierarchical, load_model_from_target, load_model_multi_target, read_from_h5_file  ,get_hot_encode, METRICS_FOLDER
+from utility import get_rank, get_pow_rank
 
 from gmpy2 import mpz,mul
-
+from tqdm import tqdm
 from train_models import cnn_best,cnn_multi_target,cnn_hierarchical
 
-
-
-
+import numpy as np
+import tensorflow as tf
+import pickle 
+import argparse
 
 
 
@@ -46,11 +50,11 @@ class Attack:
                 model_struct =  cnn_best(input_length=4749)
                 self.models['rin'] = load_model_from_target(model_struct,'rin') 
         elif multi:
-            model_struct_propagation = cnn_propagation()
-            self.models['multi'] = load_model_propagation_from_target(model_struct_propagation,shared = False)
+            model_struct_propagation = cnn_multi_target()
+            self.models['multi'] = load_model_multi_target(model_struct_propagation,shared = False)
         elif hierarchical:
-            model_struct_propagation = cnn_propagation_shared()
-            self.models['hierarchical'] = load_model_propagation_from_target(model_struct_propagation,shared = True)
+            model_struct_propagation = cnn_hierarchical()
+            self.models['hierarchical'] = load_model_hierarchical(model_struct_propagation,shared = True)
         else:
             print('Im confused, you didnt chose a model type --INDIV, --MULTI, --HIERARCHICAL')
             return
@@ -91,8 +95,8 @@ class Attack:
         predictions_beta = np.empty((self.n_total_attack_traces,256))
         predictions_alpha = np.empty((self.n_total_attack_traces,256))
             
-        plaintexts = data['plaintexts']
-        keys =  data['keys']
+        plaintexts = metadata['plaintexts']
+        
         self.key = 0x00112233445566778899AABBCCDDEEFF
         master_key =[0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
                           0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF ]  
@@ -157,7 +161,10 @@ class Attack:
                         predictions_s1_before_alpha = XorLayer()([predictions_s1_beta[byte,batch_size*batch:batch_size*(batch +1)],predictions_beta[batch_size*batch:batch_size*(batch +1)]])
                         predictions_s1 = MultiLayer()([predictions_s1_before_alpha,get_hot_encode(self.alpha[batch_size*batch:batch_size*(batch +1)])])
                         predictions_t1_from_s1 = predictions_s1[:,mapping]
-                    
+                        
+                        predictions_t1_rin[byte,batch_size*batch:batch_size*(batch +1)] = self.models['t1_rin'].predict({'traces':self.powervalues[byte][batch_size*batch:batch_size*(batch +1),3150:3350]},verbose=0)['output']
+                        predictions_t1_before_alpha = XorLayer()([predictions_t1_rin[byte,batch_size*batch:batch_size*(batch +1)],predictions_rin[batch_size*batch:batch_size*(batch +1)]])
+                        predictions_t1 = MultiLayer()([predictions_t1_before_alpha,get_hot_encode(self.alpha[batch_size*batch:batch_size*(batch +1)])])                
                         predictions_sum_t1 = predictions_t1_from_s1 + predictions_t1
                     # expand = tf.expand_dims(predictions_permutation[byte], 2)
                     # permuted_plaintext = tf.reduce_sum(tf.multiply(expand,encoded_plaintexts),axis = 1)                
@@ -208,7 +215,7 @@ class Attack:
                print('========= Trace {} ========='.format(count_trace))
                rank_string = ""
                total_rank = mpz(1)
-               ranking = np.empty((16,256),dtype = np.float32)
+               
                
                for byte in range(16):
                    self.subkeys_guess[byte] += np.log(self.predictions[byte][trace] + 1e-36)
@@ -285,7 +292,7 @@ if __name__ == "__main__":
     
     
 
-    attack = Attack(n_experiments = EXPERIMENT,individual= INDIV,multi = MULTI,herarchical = HIERARCHICAL,target = TARGET)
+    attack = Attack(n_experiments = EXPERIMENT,individual= INDIV,multi = MULTI,hierarchical = HIERARCHICAL,target = TARGET)
     attack.run()
                   
                             

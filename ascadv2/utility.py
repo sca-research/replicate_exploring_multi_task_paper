@@ -11,26 +11,26 @@ from scipy import stats
 import pickle
 import h5py
 
-from tqdm import tqdm
+
 import numpy as np
 import re
 import scipy.signal as sig
 import argparse
-from scalib.metrics import SNR
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
-from tensorflow.keras.models import load_model 
+
 import tensorflow as tf
 import tensorflow.keras.backend as K
 import tensorflow.experimental.numpy as tnp
-from tensorflow.keras.models import Model, Sequential
-from tensorflow.keras.layers import Flatten,AlphaDropout,LayerNormalization, Dense, Lambda,Conv1D, AveragePooling1D, BatchNormalization
+
+from tensorflow.keras.layers import LayerNormalization,BatchNormalization
 
 tnp.experimental_enable_numpy_behavior()
-from scalib.modeling import LDAClassifier
+
 from utils.generate_intermediate_values import save_real_values, multGF256
 import tensorflow_probability as tfp
 from gmpy2 import f_divmod_2exp
-from numba import njit
+
 # Opening dataset specific variables 
 
 file = open('utils/dataset_parameters','rb')
@@ -39,8 +39,8 @@ file.close()
 
 
 DATASET_FOLDER  = parameters['DATASET_FOLDER']
-METRICS_FOLDER = DATASET_FOLDER + 'metrics/' 
-MODEL_FOLDER = DATASET_FOLDER + 'models/' 
+METRICS_FOLDER = DATASET_FOLDER + 'metrics_replicate/' 
+MODEL_FOLDER = DATASET_FOLDER + 'models_replicate/' 
 TRACES_FOLDER = DATASET_FOLDER + 'traces/'
 REALVALUES_FOLDER = DATASET_FOLDER + 'real_values/'
 POWERVALUES_FOLDER = DATASET_FOLDER + 'powervalues/'
@@ -80,7 +80,7 @@ class PoolingCrop(tf.keras.layers.Layer):
         self.use_dropout = use_dropout
         if self.use_dropout:
             self.dropout = tf.keras.layers.AlphaDropout(0.01)
-        self.bn = tf.keras.layers.BatchNormalization()
+        self.bn = BatchNormalization()
         
         
     
@@ -107,7 +107,7 @@ class PoolingCrop(tf.keras.layers.Layer):
 class XorLayer(tf.keras.layers.Layer):
   def __init__(self,classes =256 ,name = ''):
     super(XorLayer, self).__init__(name = name)
-    all_maps = np.load('xor_mapping.npy')
+    all_maps = np.load('utils/xor_mapping.npy')
     mapping1 = []
     mapping2 = []
     for classe in range(classes):
@@ -177,7 +177,7 @@ def multGF256(a,b):
 class MultiLayer(tf.keras.layers.Layer):
     def __init__(self,classes = 256 ,name = ''):
         super(MultiLayer, self).__init__(name = name)
-        all_maps = np.load('mult_mapping.npy')
+        all_maps = np.load('utils/mult_mapping.npy')
         mapping1 = []
         mapping2 = []
         for classe in range(classes):
@@ -298,21 +298,14 @@ def load_model_from_target(structure , target,combine = False, window_type = 'cl
     structure.load_weights(model_file)
     return structure    
 
-def load_model_unmasking_from_target(structure , target, window_type = 'classic',input_layer = 'classic'):
-    model_file  = MODEL_FOLDER+ ('{}_{}_wt{}_{}.h5'.format(target ,'cnn_unmasking',window_type,input_layer)  )
+def load_model_multi_target(structure ):
+    model_file  = MODEL_FOLDER+ ('{}_{}.h5'.format('all_t1' ,'cnn_multi_target')  )
     print('Loading model {}'.format(model_file))
     structure.load_weights(model_file)
     return structure   
 
-
-def load_model_composed_from_target(structure , target, window_type = 'classic',input_layer = 'classic'):
-    model_file  = MODEL_FOLDER+ ('{}_{}_wt{}_{}.h5'.format(target ,'cnn_unmasking_multiple_shares',window_type,input_layer)  )
-    print('Loading model {}'.format(model_file))
-    structure.load_weights(model_file)
-    return structure   
-
-def load_model_propagation_from_target(structure, window_type = 'classic',input_layer = 'classic',shared = False):
-    model_file  = MODEL_FOLDER+ ('all_k1_{}_wt{}_{}.h5'.format('cnn_propagation{}'.format('' if not shared else '_shared'),window_type,input_layer ))
+def load_model_hierarchical(structure):
+    model_file  = MODEL_FOLDER+ ('{}_{}.h5'.format('all_t1' ,'cnn_hierarchical')  )
     print('Loading model {}'.format(model_file))
     structure.load_weights(model_file)
     return structure  
@@ -324,13 +317,15 @@ def load_model_propagation_from_target(structure, window_type = 'classic',input_
 
 
 
-def read_from_h5_file(file = None,n_traces = 1000,masked = False,dataset = 'training'):   
+def read_from_h5_file(n_traces = 1000,dataset = 'training',load_plaintexts = False):   
     
     f = h5py.File(DATASET_FOLDER + FILE_DATASET,'r')[dataset]  
     labels_dict = f['labels']
-    data =  {'keys':f['keys']   ,'plaintexts':f['plaintexts']}
-
-    return  f['traces'][:n_traces] , labels_dict, data
+    if load_plaintexts:
+        data =  {'keys':f['keys']   ,'plaintexts':f['plaintexts']}
+        return  f['traces'][:n_traces] , labels_dict, data
+    else:
+        return  f['traces'][:n_traces] , labels_dict
 def get_byte(i):
     for b in range(17,1,-1):
         if str(b) in i:
@@ -397,7 +392,7 @@ def load_dataset(target,intermediate,n_traces = None,load_masks = False,window_t
 def load_dataset_multi(n_traces = None,dataset = 'training',encoded_labels = True,print_logs = True):
     training = dataset == 'training' 
     if print_logs :
-        str_targets = 'Loading samples and labels for all together but obviously permuted'
+        str_targets = 'Loading samples and labels in order to train the multi-task model'
         print(str_targets)
         
     traces , labels_dict = read_from_h5_file(n_traces=n_traces,dataset = dataset)
@@ -406,7 +401,7 @@ def load_dataset_multi(n_traces = None,dataset = 'training',encoded_labels = Tru
     X_profiling_dict['traces'] = traces 
 
     
-    X_profiling_dict = {}  
+  
     permutations = np.array(labels_dict['p'],dtype = np.uint8)[:n_traces]
 
     if training:
@@ -416,15 +411,13 @@ def load_dataset_multi(n_traces = None,dataset = 'training',encoded_labels = Tru
         X_validation_dict['traces'] = traces_val
         
         permutations_val = np.array(labels_dict_val['p'],dtype = np.uint8)
-        X_validation_dict = {}  
+      
 
-    all_inputs = None
-    all_inputs_val = None
+
 
 
     if print_logs :
         print('Loaded inputs')    
-        print('Shape : ',all_inputs.shape)
         
 
     real_values_t1_rin = np.array(labels_dict['t1^rin'],dtype = np.uint8)[:n_traces]
@@ -471,11 +464,11 @@ def load_dataset_multi(n_traces = None,dataset = 'training',encoded_labels = Tru
 
 
 
-def load_dataset_hierarchical(n_traces = 2500000,load_masks = False,dataset = 'training',encoded_labels = True,print_logs = True):
+def load_dataset_hierarchical(n_traces = 250000,dataset = 'training',encoded_labels = True,print_logs = True):
 
     training = dataset == 'training' 
     if print_logs :
-        str_targets = 'Loading samples and labels for all together but obviously permuted'
+        str_targets = 'Loading samples and labels in order to train the hierarchical model'
         print(str_targets)
         
     traces , labels_dict = read_from_h5_file(n_traces=n_traces,dataset = dataset)
@@ -484,7 +477,7 @@ def load_dataset_hierarchical(n_traces = 2500000,load_masks = False,dataset = 't
     X_profiling_dict['traces'] = traces 
 
     
-    X_profiling_dict = {}  
+  
     permutations = np.array(labels_dict['p'],dtype = np.uint8)[:n_traces]
 
     if training:
@@ -494,15 +487,12 @@ def load_dataset_hierarchical(n_traces = 2500000,load_masks = False,dataset = 't
         X_validation_dict['traces'] = traces_val
         
         permutations_val = np.array(labels_dict_val['p'],dtype = np.uint8)
-        X_validation_dict = {}  
-
-    all_inputs = None
-    all_inputs_val = None
+        
 
 
     if print_logs :
         print('Loaded inputs')    
-        print('Shape : ',all_inputs.shape)
+        
         
 
     real_values_t1_rin = np.array(labels_dict['t1^rin'],dtype = np.uint8)[:n_traces]

@@ -288,10 +288,10 @@ def train_model(training_type,variable,intermediate):
     window =  X_profiling.element_spec[0]['traces'].shape[0]
     
     if model_t == "cnn_best" :
-        model = cnn_best(input_length =window,dense_units=1000 ,name = intermediate.replace('^','_') if '^' in intermediate else intermediate)
+        model = cnn_best(input_length =window ,name = intermediate.replace('^','_') if '^' in intermediate else intermediate)
     elif model_t == 'cnn_multi_target':
         model = cnn_multi_target()        
-    elif model_t == 'cnn_propagation':
+    elif model_t == 'cnn_hierarchical':
         model = cnn_hierarchical()                                   
     else:
         print('Some error here')
@@ -337,11 +337,11 @@ if __name__ == "__main__":
     parser.add_argument('--CLASSICAL', action="store_true", dest="CLASSICAL",
                         help='Classical training of the intermediates', default=False)
     parser.add_argument('--MULTI',   action="store_true", dest="MULTI", help='Adding the masks to the labels', default=False)
-    parser.add_argument('--PROPAGATION',   action="store_true", dest="PROPAGATION", help='Adding the masks to the labels', default=False)
+    parser.add_argument('--HIERARCHICAL',   action="store_true", dest="HIERARCHICAL", help='Adding the masks to the labels', default=False)
     args            = parser.parse_args()
   
 
-    PROPAGATION        = args.PROPAGATION
+    HIERARCHICAL        = args.HIERARCHICAL
     CLASSICAL        = args.CLASSICAL
     MULTI = args.MULTI
 
@@ -355,9 +355,9 @@ if __name__ == "__main__":
         TARGETS['multi'] = ['t1']
         BYTES = ['all']
 
-    elif PROPAGATION:
-        training_types = ['propagation']
-        TARGETS['propagation'] = ['t1']
+    elif HIERARCHICAL:
+        training_types = ['hierarchical']
+        TARGETS['hierarchical'] = ['t1']
         BYTES = ['all']
         #BYTES = [4,5,6,7,9,10,11,12,13,15,16]
     
