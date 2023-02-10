@@ -91,8 +91,8 @@ class Attack:
         predictions_beta = np.empty((self.n_total_attack_traces,256))
         predictions_alpha = np.empty((self.n_total_attack_traces,256))
             
-        plaintexts = data['plaintexts']
-        keys =  data['keys']
+        plaintexts = metadata['plaintexts']
+        keys =  metadata['keys']
         self.key = 0x00112233445566778899AABBCCDDEEFF
         master_key =[0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
                           0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF ]  
