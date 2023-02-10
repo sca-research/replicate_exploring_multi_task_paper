@@ -32,8 +32,14 @@ from utility import load_dataset, load_dataset_multi ,load_dataset_hierarchical
 
 
 
-tf.random.set_seed(7)
-np.random.seed(7)
+seed = 7
+
+
+tf.random.set_seed(seed)
+np.random.seed(seed)
+os.environ['PYTHONHASHSEED'] = str(seed)
+os.environ['TF_DETERMINISTIC_OPS'] = '1'
+os.environ['TF_CUDNN_DETERMINISTIC'] = '1'
 
 ###########################################################################
 
