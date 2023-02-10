@@ -6,12 +6,12 @@ Created on Sat Mar  5 11:32:19 2022
 """
 
 from utility import XorLayer, MultiLayer
-from utility import load_model_hierarchical, load_model_from_target, load_model_multi_target, read_from_h5_file  ,get_hot_encode, METRICS_FOLDER
+from utility import load_model_hierarchical, load_model_from_target, load_model_multi_task, read_from_h5_file  ,get_hot_encode, METRICS_FOLDER
 from utility import get_rank, get_pow_rank
 
 from gmpy2 import mpz,mul
 from tqdm import tqdm
-from train_models import cnn_best,cnn_multi_target,cnn_hierarchical
+from train_models import cnn_best,cnn_multi_task,cnn_hierarchical
 
 import numpy as np
 import tensorflow as tf
@@ -50,8 +50,8 @@ class Attack:
                 model_struct =  cnn_best(input_length=4749)
                 self.models['rin'] = load_model_from_target(model_struct,'rin') 
         elif multi:
-            model_struct_propagation = cnn_multi_target()
-            self.models['multi'] = load_model_multi_target(model_struct_propagation)
+            model_struct_propagation = cnn_multi_task()
+            self.models['multi'] = load_model_multi_task(model_struct_propagation)
         elif hierarchical:
             model_struct_propagation = cnn_hierarchical()
             self.models['hierarchical'] = load_model_hierarchical(model_struct_propagation)

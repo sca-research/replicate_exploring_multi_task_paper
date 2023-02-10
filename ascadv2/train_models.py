@@ -94,7 +94,7 @@ def cnn_best(input_length=1000, learning_rate=0.0001, classes=256, dense_units=1
 ### Multi-Task Models
 
 
-def cnn_multi_target(learning_rate=0.0001, classes=256, dense_units=1000):
+def cnn_multi_task(learning_rate=0.0001, classes=256, dense_units=1000):
     
     inputs_dict = {}
     
@@ -127,7 +127,7 @@ def cnn_multi_target(learning_rate=0.0001, classes=256, dense_units=1000):
     
 
 
-    model = Model(inputs = inputs_dict,outputs = outputs,name='cnn_propagation')
+    model = Model(inputs = inputs_dict,outputs = outputs,name='cnn_multi_task')
     optimizer = Adam(learning_rate=learning_rate)
     model.compile(loss=losses, optimizer=optimizer, metrics=['accuracy'],loss_weights = weights)
     model.summary()
@@ -281,7 +281,7 @@ def train_model(training_type,variable,intermediate):
         model_t = 'cnn_best' 
     elif training_type == 'multi':
         X_profiling , validation_data = load_dataset_multi(n_traces = n_traces,dataset = 'training') 
-        model_t = 'cnn_multi_target'
+        model_t = 'cnn_multi_task'
     else:
         X_profiling , validation_data = load_dataset_hierarchical(n_traces = n_traces,dataset = 'training') 
         model_t = 'cnn_hierarchical'
@@ -289,8 +289,8 @@ def train_model(training_type,variable,intermediate):
     
     if model_t == "cnn_best" :
         model = cnn_best(input_length =window ,name = intermediate.replace('^','_') if '^' in intermediate else intermediate)
-    elif model_t == 'cnn_multi_target':
-        model = cnn_multi_target()        
+    elif model_t == 'cnn_multi_task':
+        model = cnn_multi_task()        
     elif model_t == 'cnn_hierarchical':
         model = cnn_hierarchical()                                   
     else:
