@@ -401,7 +401,7 @@ def load_dataset_multi(n_traces = None,dataset = 'training',encoded_labels = Tru
     X_profiling_dict['traces'] = traces 
 
     
-    X_profiling_dict = {}  
+  
     permutations = np.array(labels_dict['p'],dtype = np.uint8)[:n_traces]
 
     if training:
@@ -411,7 +411,7 @@ def load_dataset_multi(n_traces = None,dataset = 'training',encoded_labels = Tru
         X_validation_dict['traces'] = traces_val
         
         permutations_val = np.array(labels_dict_val['p'],dtype = np.uint8)
-        X_validation_dict = {}  
+      
 
 
 
@@ -477,7 +477,7 @@ def load_dataset_hierarchical(n_traces = 250000,dataset = 'training',encoded_lab
     X_profiling_dict['traces'] = traces 
 
     
-    X_profiling_dict = {}  
+  
     permutations = np.array(labels_dict['p'],dtype = np.uint8)[:n_traces]
 
     if training:
@@ -487,7 +487,7 @@ def load_dataset_hierarchical(n_traces = 250000,dataset = 'training',encoded_lab
         X_validation_dict['traces'] = traces_val
         
         permutations_val = np.array(labels_dict_val['p'],dtype = np.uint8)
-        X_validation_dict = {}  
+        
 
 
     if print_logs :
