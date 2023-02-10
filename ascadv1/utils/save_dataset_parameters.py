@@ -30,7 +30,7 @@ dict_parameters = {}
 dict_parameters['KEY'] = 0x00112233445566778899AABBCCDDEEFF 
 
 ########### PATHS & FILE MANAGEMENT ######################################
-DATASET_FOLDER= 'D:/dataset_masked_AES/dataset_ASCADv2/'  if sys.platform == 'win32' else '/srv/datasets/dataset_ASCAD_v2/'
+DATASET_FOLDER= 'D:/dataset_masked_AES/dataset_ASCAD/'  if sys.platform == 'win32' else '/srv/datasets/dataset_ASCAD/'
 FILE_DATASET = 'Ascad_v1_dataset.h5'
 PROJECT_FOLDER = 'C:/Users/martho/Documents/replicate_multi_task_paper/ascadv2/'  if sys.platform == 'win32' else '/home/martho/Projets/replicate_multi_task_paper/ascadv2/'
 
@@ -44,52 +44,43 @@ dict_parameters['PROJECT_FOLDER'] = PROJECT_FOLDER
 
 
 ## Attacked intermediate states, '1' for first round
-
-MASKS = ['rin','alpha','beta','m','p','beta_mj','rin_mj','mj']
-INTERMEDIATES= []
-MASK_INTERMEDIATES = {}
-for i in range(1,2):
-    INTERMEDIATES.append('s{}'.format(i))
-    INTERMEDIATES.append('t{}'.format(i))
-    INTERMEDIATES.append('k{}'.format(i))
-    
-    MASK_INTERMEDIATES['s{}'.format(i)] = ['beta_mj','beta','mj']
-    MASK_INTERMEDIATES['t{}'.format(i)] = ['rin_mj','rin','mj']
-    MASK_INTERMEDIATES['k{}'.format(i)] = ['alpha']
-MASKED_INTERMEDIATES = {}
+INTERMEDIATES = ['s1','t1','k1','p1']
+ONE_MASK = ['o','r','i']
+MASKS = ONE_MASK + ['ri','ro']
+MASK_INTERMEDIATES = {'s1' : ['r','o','ro'],'t1':['r','i','ri'],'k1':['o','ro','r'],'p1': []}
 VARIABLE_LIST = {}
-
+MASKED_INTERMEDIATES = []
 
 for intermediate in INTERMEDIATES:
-    print(intermediate)
-    round_k = int(intermediate[1:]) - 1
-    name_intermediate = intermediate[0]
-    VARIABLE_LIST[intermediate] = [ name_intermediate + '0'+ ('0'+str(i) if i < 10 else '' + str(i)) for i in range(1 + 16 * round_k , 17 + 16 * round_k )  ]
+  
+    VARIABLE_LIST[intermediate] = [ intermediate[:len(list(intermediate))-1] + '0'+ ('0'+str(i) if i < 10 else '' + str(i)) for i in range(1 if int(intermediate[len(list(intermediate))-1]) == 1 else 17,17 if int(intermediate[len(list(intermediate))-1]) == 1 else 33 )  ]
     for mask in MASK_INTERMEDIATES[intermediate]:
-        MASKED_INTERMEDIATES[intermediate + '^' + mask ] = [(x + '^' + mask) for x in VARIABLE_LIST[intermediate]]
-        
-        
-        
+        MASKED_INTERMEDIATES.append(intermediate + '^' + mask)
+        start_byte = 1 
+        end_byte= 17
+        if not intermediate + '^' + mask in VARIABLE_LIST:
+                VARIABLE_LIST[intermediate + '^' + mask] = []             
+        for byte in range(start_byte,end_byte):      
+            mask_name = mask if mask == 'o' or mask == 'i' else ((mask + '0' + str(byte)) if byte < 10 else mask + str(byte))
+            VARIABLE_LIST[intermediate + '^' + mask].append((intermediate[:len(list(intermediate))-1] + '0'+ ('0'+str(byte) if byte < 10 else '' + str(byte) ) +'^' +  mask_name))  
+
+
 ########################################################################                        
 
-for intermediate in MASKED_INTERMEDIATES:
-    VARIABLE_LIST[intermediate ] = [x for x in MASKED_INTERMEDIATES[intermediate]]
-    INTERMEDIATES.append(intermediate  )
-    
 INTERMEDIATES += MASKS
-for mask in MASKS:
-    VARIABLE_LIST[mask ] = [mask] if mask == 'rin' or mask == 'alpha' or mask == 'beta' else ['{}0{}'.format(mask,i+1 if i >= 9 else '0' + str(i+1)) for i in range(16)]
-    
-
+INTERMEDIATES += MASKED_INTERMEDIATES
+        
+for intermediate in MASKS:
+    VARIABLE_LIST[intermediate] = [intermediate] if (intermediate == 'o' or intermediate == 'i')else [(intermediate + '0' + str(byte) if byte < 10 else (intermediate + str(byte))) for byte in range( 1, 17)]
 
 print(VARIABLE_LIST)
 
 dict_parameters['INTERMEDIATES'] = INTERMEDIATES
-dict_parameters['VARIABLE_LIST'] = VARIABLE_LIST
-dict_parameters['MASKS']= MASKS
-dict_parameters['ONE_MASKS']= MASKS
+dict_parameters['ONE_MASKS'] = ONE_MASK
+dict_parameters['MASKS'] = MASKS
 dict_parameters['MASK_INTERMEDIATES'] = MASK_INTERMEDIATES
-dict_parameters['MASKED_INTERMEDIATES']= MASKED_INTERMEDIATES
+dict_parameters['MASKED_INTERMEDIATES'] = MASKED_INTERMEDIATES
+dict_parameters['VARIABLE_LIST'] = VARIABLE_LIST
 
 file = open('dataset_parameters','wb')
 pickle.dump(dict_parameters,file)
