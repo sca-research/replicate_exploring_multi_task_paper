@@ -285,7 +285,7 @@ if __name__ == "__main__":
     
     
 
-    attack = Attack(n_experiments = EXPERIMENT,individual= INDIV,multi = MULTI,herarchical = HIERARCHICAL,target = TARGET)
+    attack = Attack(n_experiments = EXPERIMENT,individual= INDIV,multi = MULTI,hierarchical = HIERARCHICAL,target = TARGET)
     attack.run()
                   
                             
