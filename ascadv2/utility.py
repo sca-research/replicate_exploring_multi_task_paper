@@ -392,7 +392,7 @@ def load_dataset(target,intermediate,n_traces = None,load_masks = False,window_t
 def load_dataset_multi(n_traces = None,dataset = 'training',encoded_labels = True,print_logs = True):
     training = dataset == 'training' 
     if print_logs :
-        str_targets = 'Loading samples and labels for all together but obviously permuted'
+        str_targets = 'Loading samples and labels in order to train the multi-task model'
         print(str_targets)
         
     traces , labels_dict = read_from_h5_file(n_traces=n_traces,dataset = dataset)
@@ -470,7 +470,7 @@ def load_dataset_hierarchical(n_traces = 2500000,load_masks = False,dataset = 't
 
     training = dataset == 'training' 
     if print_logs :
-        str_targets = 'Loading samples and labels for all together but obviously permuted'
+        str_targets = 'Loading samples and labels in order to train the hierarchical model'
         print(str_targets)
         
     traces , labels_dict = read_from_h5_file(n_traces=n_traces,dataset = dataset)
@@ -497,7 +497,7 @@ def load_dataset_hierarchical(n_traces = 2500000,load_masks = False,dataset = 't
 
     if print_logs :
         print('Loaded inputs')    
-        print('Shape : ',all_inputs.shape)
+        
         
 
     real_values_t1_rin = np.array(labels_dict['t1^rin'],dtype = np.uint8)[:n_traces]
