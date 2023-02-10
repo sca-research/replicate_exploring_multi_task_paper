@@ -176,8 +176,6 @@ def cnn_hierarchical_subbytes_inputs(input_length=250000, learning_rate=0.001, c
 
       
     inputs_dict['traces'] = inputs    
-    losses['output'] = 'categorical_crossentropy'
-    weights['output'] = 1
 
 
     

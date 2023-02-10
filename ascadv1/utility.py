@@ -476,7 +476,8 @@ def load_dataset_hierarchical(byte,n_traces = 250000,multi_target =False,dataset
             Y_validation_dict['output_s1'] = get_hot_encode(real_values_s1_val)
             Y_validation_dict['output'] = get_hot_encode(real_values_k1_val)
 
-
+        print(Y_validation_dict.keys())
+        print(Y_profiling_dict.keys())
 
         return tf.data.Dataset.from_tensor_slices((X_profiling_dict ,Y_profiling_dict)), tf.data.Dataset.from_tensor_slices(( X_validation_dict,Y_validation_dict)) 
    
