@@ -157,7 +157,10 @@ class Attack:
                         predictions_s1_before_alpha = XorLayer()([predictions_s1_beta[byte,batch_size*batch:batch_size*(batch +1)],predictions_beta[batch_size*batch:batch_size*(batch +1)]])
                         predictions_s1 = MultiLayer()([predictions_s1_before_alpha,get_hot_encode(self.alpha[batch_size*batch:batch_size*(batch +1)])])
                         predictions_t1_from_s1 = predictions_s1[:,mapping]
-                    
+                        
+                        predictions_t1_rin[byte,batch_size*batch:batch_size*(batch +1)] = self.models['t1_rin'].predict({'traces':self.powervalues[byte][batch_size*batch:batch_size*(batch +1),3150:3350]},verbose=0)['output']
+                        predictions_t1_before_alpha = XorLayer()([predictions_t1_rin[byte,batch_size*batch:batch_size*(batch +1)],predictions_rin[batch_size*batch:batch_size*(batch +1)]])
+                        predictions_t1 = MultiLayer()([predictions_t1_before_alpha,get_hot_encode(self.alpha[batch_size*batch:batch_size*(batch +1)])])                
                         predictions_sum_t1 = predictions_t1_from_s1 + predictions_t1
                     # expand = tf.expand_dims(predictions_permutation[byte], 2)
                     # permuted_plaintext = tf.reduce_sum(tf.multiply(expand,encoded_plaintexts),axis = 1)                
