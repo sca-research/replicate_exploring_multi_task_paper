@@ -379,13 +379,13 @@ def train_model(training_type,variable,intermediate,multi_target):
         X_profiling , validation_data = load_dataset(variable,intermediate,n_traces = n_traces)
         model_t = 'cnn_best' 
     elif training_type == 'multi':
-        X_profiling , validation_data = load_dataset_multi(variable,n_traces = n_traces,multi_target = multi_target,dataset = 'training') 
+        X_profiling , validation_data = load_dataset_multi(VARIABLE_LIST[intermediate].index(variable),n_traces = n_traces,multi_target = multi_target,dataset = 'training') 
         if multi_target:
             model_t = 'cnn_multi_task_multi_target'
         else:
             model_t = 'cnn_multi_task_subbytes_inputs'
     else:
-        X_profiling , validation_data = load_dataset_hierarchical(variable,n_traces = n_traces,multi_target = multi_target,dataset = 'training') 
+        X_profiling , validation_data = load_dataset_hierarchical(VARIABLE_LIST[intermediate].index(variable),n_traces = n_traces,multi_target = multi_target,dataset = 'training') 
         if multi_target:
             model_t = 'cnn_hierarchical_multi_target'
         else:
