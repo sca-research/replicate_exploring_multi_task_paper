@@ -107,7 +107,7 @@ class PoolingCrop(tf.keras.layers.Layer):
 class XorLayer(tf.keras.layers.Layer):
   def __init__(self,classes =256 ,name = ''):
     super(XorLayer, self).__init__(name = name)
-    all_maps = np.load('xor_mapping.npy')
+    all_maps = np.load('utils/xor_mapping.npy')
     mapping1 = []
     mapping2 = []
     for classe in range(classes):
@@ -177,7 +177,7 @@ def multGF256(a,b):
 class MultiLayer(tf.keras.layers.Layer):
     def __init__(self,classes = 256 ,name = ''):
         super(MultiLayer, self).__init__(name = name)
-        all_maps = np.load('mult_mapping.npy')
+        all_maps = np.load('utils/mult_mapping.npy')
         mapping1 = []
         mapping2 = []
         for classe in range(classes):
