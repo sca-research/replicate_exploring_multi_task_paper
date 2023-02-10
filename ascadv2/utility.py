@@ -292,8 +292,8 @@ def get_rank(result,true_value):
     key_ranking_good_key = list(key_probabilities_sorted).index(true_value) + 1
     return key_ranking_good_key
 
-def load_model_from_target(structure , target,combine = False, window_type = 'classic',input_layer = 'classic'):
-    model_file  = MODEL_FOLDER+ ('all_{}_{}_wt{}_{}.h5'.format(target,'cnn_best' ,window_type, input_layer) )
+def load_model_from_target(structure , target):
+    model_file  = MODEL_FOLDER+ ('all_{}_{}.h5'.format(target,'cnn_best') )
     print('Loading model {}'.format(model_file))
     structure.load_weights(model_file)
     return structure    
