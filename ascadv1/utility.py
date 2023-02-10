@@ -292,20 +292,20 @@ def get_rank(result,true_value):
     key_ranking_good_key = list(key_probabilities_sorted).index(true_value) + 1
     return key_ranking_good_key
 
-def load_model_from_target(structure , target,combine = False, window_type = 'classic',input_layer = 'classic'):
-    model_file  = MODEL_FOLDER+ ('all_{}_{}_wt{}_{}.h5'.format(target,'cnn_best' ,window_type, input_layer) )
+def load_model_from_target(structure , target):
+    model_file  = MODEL_FOLDER+ ('all_{}_{}.h5'.format(target,'cnn_best' ) )
     print('Loading model {}'.format(model_file))
     structure.load_weights(model_file)
     return structure    
 
-def load_model_multi_task(structure ):
-    model_file  = MODEL_FOLDER+ ('{}_{}.h5'.format('all_t1' ,'cnn_multi_task')  )
+def load_model_multi_task(structure,multi_target = False ):
+    model_file  = MODEL_FOLDER+ ('{}_{}.h5'.format('all_t1' if not multi_target else 'all_k1','cnn_multi_task_{}'.format('multi_target' if multi_target else 'subbytes_inputs'))  )
     print('Loading model {}'.format(model_file))
     structure.load_weights(model_file)
     return structure   
 
-def load_model_hierarchical(structure):
-    model_file  = MODEL_FOLDER+ ('{}_{}.h5'.format('all_t1' ,'cnn_hierarchical')  )
+def load_model_hierarchical(structure,multi_target = False):
+    model_file  = MODEL_FOLDER+ ('{}_{}.h5'.format('all_t1' if not multi_target else 'all_k1' ,'cnn_hierarchical_{}'.format('multi_target' if multi_target else 'subbytes_inputs'))  )
     print('Loading model {}'.format(model_file))
     structure.load_weights(model_file)
     return structure  
@@ -389,7 +389,7 @@ def load_dataset(target,intermediate,n_traces = None,load_masks = False,window_t
 
 
 
-def load_dataset_multi(n_traces = None,dataset = 'training',encoded_labels = True,print_logs = True):
+def load_dataset_multi(byte,n_traces = None,dataset = 'training',multi_target = False,encoded_labels = True,print_logs = True):
     training = dataset == 'training' 
     if print_logs :
         str_targets = 'Loading samples and labels in order to train the multi-task model'
@@ -400,19 +400,12 @@ def load_dataset_multi(n_traces = None,dataset = 'training',encoded_labels = Tru
     X_profiling_dict = {}  
     X_profiling_dict['traces'] = traces 
 
-    
-  
-    permutations = np.array(labels_dict['p'],dtype = np.uint8)[:n_traces]
 
     if training:
         traces_val , labels_dict_val = read_from_h5_file(n_traces=n_traces,dataset = 'test')
         traces_val = np.expand_dims(traces_val,2)
         X_validation_dict = {}  
         X_validation_dict['traces'] = traces_val
-        
-        permutations_val = np.array(labels_dict_val['p'],dtype = np.uint8)
-      
-
 
 
 
@@ -420,40 +413,51 @@ def load_dataset_multi(n_traces = None,dataset = 'training',encoded_labels = Tru
         print('Loaded inputs')    
         
 
-    real_values_t1_rin = np.array(labels_dict['t1^rin'],dtype = np.uint8)[:n_traces]
-    real_values_s1_beta = np.array(labels_dict['s1^beta'],dtype = np.uint8)[:n_traces]
-    permutations = np.array(labels_dict['p'],dtype = np.uint8)[:n_traces]
+    real_values_t1_i = np.array(labels_dict['t1^i'],dtype = np.uint8)[:n_traces,byte]
+    real_values_t1_ri = np.array(labels_dict['t1^ri'],dtype = np.uint8)[:n_traces,byte]
+    real_values_t1_r = np.array(labels_dict['t1^r'],dtype = np.uint8)[:n_traces,byte]
+    real_values_s1_r = np.array(labels_dict['s1^r'],dtype = np.uint8)[:n_traces,byte]
+    real_values_r = np.array(labels_dict['r'],dtype = np.uint8)[:n_traces,byte]
+    real_values_i = np.array(labels_dict['i'],dtype = np.uint8)[:n_traces]
     Y_profiling_dict = {}  
-    real_values_beta = np.array(labels_dict['beta'],dtype = np.uint8)[:n_traces]
-    Y_profiling_dict['output_beta'] = get_hot_encode(real_values_beta) if encoded_labels else  real_values_beta    
-    real_values_alpha = np.array(labels_dict['alpha'],dtype = np.uint8)[:n_traces]
-    Y_profiling_dict['output_alpha'] = get_hot_encode(real_values_alpha) if encoded_labels else  real_values_alpha       
-    real_values_rin = np.array(labels_dict['rin'],dtype = np.uint8)[:n_traces]
-    Y_profiling_dict['output_rin'] = get_hot_encode(real_values_rin) if encoded_labels else  real_values_rin 
-    Y_profiling_dict['output_t1_rin'] = get_hot_encode(real_values_t1_rin) if encoded_labels else  real_values_t1_rin 
-    Y_profiling_dict['output_s1_beta'] = get_hot_encode(real_values_s1_beta) if encoded_labels else  real_values_s1_beta
-    Y_profiling_dict['output_permutation'] = get_hot_encode(permutations,classes = 16) if encoded_labels else  permutations
 
+    if multi_target:
+        
+        Y_profiling_dict['output_r'] = get_hot_encode(real_values_r) if encoded_labels else  real_values_r    
+        Y_profiling_dict['output_i'] = get_hot_encode(real_values_i) if encoded_labels else  real_values_i       
+        Y_profiling_dict['output_t1_i'] = get_hot_encode(real_values_t1_i) if encoded_labels else  real_values_t1_i 
+        Y_profiling_dict['output_t1_r'] = get_hot_encode(real_values_t1_r) if encoded_labels else  real_values_t1_r 
+        Y_profiling_dict['output_t1_ri'] = get_hot_encode(real_values_t1_ri) if encoded_labels else  real_values_t1_ri
+    else:
+        Y_profiling_dict['output_r'] = get_hot_encode(real_values_r) if encoded_labels else  real_values_r    
+        Y_profiling_dict['output_i'] = get_hot_encode(real_values_i) if encoded_labels else  real_values_i       
+        Y_profiling_dict['output_t1_i'] = get_hot_encode(real_values_t1_i) if encoded_labels else  real_values_t1_i 
+        Y_profiling_dict['output_s1_r'] = get_hot_encode(real_values_s1_r) if encoded_labels else  real_values_s1_r 
 
      
 
                                               
     if training:
-        real_values_t1_rin_val = np.array(labels_dict_val ['t1^rin'],dtype = np.uint8)
-        real_values_s1_beta_val  = np.array(labels_dict_val ['s1^beta'],dtype = np.uint8)
-        real_values_beta_val = np.array(labels_dict_val['beta'],dtype = np.uint8)
-        permutations_val = np.array(labels_dict_val['p'],dtype = np.uint8)[:n_traces]
-        Y_validation_dict = {}
-        Y_validation_dict['output_beta'] = get_hot_encode(real_values_beta_val) if encoded_labels else  real_values_beta_val    
-        real_values_alpha_val = np.array(labels_dict_val['alpha'],dtype = np.uint8)
-        Y_validation_dict['output_alpha'] = get_hot_encode(real_values_alpha_val) if encoded_labels else  real_values_alpha_val       
-        real_values_rin_val = np.array(labels_dict_val['rin'],dtype = np.uint8)
-        Y_validation_dict['output_rin'] = get_hot_encode(real_values_rin_val) if encoded_labels else  real_values_rin_val          
-        
-        Y_validation_dict['output_t1_rin'] = get_hot_encode(real_values_t1_rin_val) if encoded_labels else  real_values_t1_rin_val 
-        Y_validation_dict['output_s1_beta'] = get_hot_encode(real_values_s1_beta_val) if encoded_labels else  real_values_s1_beta_val
-        Y_validation_dict['output_permutation'] = get_hot_encode(permutations_val,classes = 16) if encoded_labels else  permutations_val
-
+        real_values_t1_i_val = np.array(labels_dict_val['t1^i'],dtype = np.uint8)[:,byte]
+        real_values_t1_ri_val = np.array(labels_dict_val['t1^ri'],dtype = np.uint8)[:,byte]
+        real_values_t1_r_val = np.array(labels_dict_val['t1^r'],dtype = np.uint8)[:,byte]
+        real_values_s1_r_val = np.array(labels_dict_val['s1^r'],dtype = np.uint8)[:,byte]
+        real_values_r_val = np.array(labels_dict_val['r'],dtype = np.uint8)[:,byte]
+        real_values_i_val = np.array(labels_dict_val['i'],dtype = np.uint8)
+        Y_validation_dict = {}  
+    
+        if multi_target:
+            
+            Y_validation_dict['output_r'] = get_hot_encode(real_values_r_val)  
+            Y_validation_dict['output_i'] = get_hot_encode(real_values_i_val)       
+            Y_validation_dict['output_t1_i'] = get_hot_encode(real_values_t1_i_val)
+            Y_validation_dict['output_t1_r'] = get_hot_encode(real_values_t1_r_val) 
+            Y_validation_dict['output_t1_ri'] = get_hot_encode(real_values_t1_ri_val)
+        else:
+            Y_validation_dict['output_r'] = get_hot_encode(real_values_r_val)   
+            Y_validation_dict['output_i'] = get_hot_encode(real_values_i_val)     
+            Y_validation_dict['output_t1_i'] = get_hot_encode(real_values_t1_i_val) 
+            Y_validation_dict['output_s1_r'] = get_hot_encode(real_values_s1_r_val) 
 
 
 
@@ -464,7 +468,7 @@ def load_dataset_multi(n_traces = None,dataset = 'training',encoded_labels = Tru
 
 
 
-def load_dataset_hierarchical(n_traces = 250000,dataset = 'training',encoded_labels = True,print_logs = True):
+def load_dataset_hierarchical(byte,n_traces = 250000,multi_target =False,dataset = 'training',encoded_labels = True,print_logs = True):
 
     training = dataset == 'training' 
     if print_logs :
@@ -493,49 +497,71 @@ def load_dataset_hierarchical(n_traces = 250000,dataset = 'training',encoded_lab
     if print_logs :
         print('Loaded inputs')    
         
-        
-
-    real_values_t1_rin = np.array(labels_dict['t1^rin'],dtype = np.uint8)[:n_traces]
-    real_values_t1 = np.array(labels_dict['t1'],dtype = np.uint8)[:n_traces]
-    real_values_s1_beta = np.array(labels_dict['s1^beta'],dtype = np.uint8)[:n_traces]
-    permutations = np.array(labels_dict['p'],dtype = np.uint8)[:n_traces]
+    real_values_t1_i = np.array(labels_dict['t1^i'],dtype = np.uint8)[:n_traces,byte]
+    real_values_t1_ri = np.array(labels_dict['t1^ri'],dtype = np.uint8)[:n_traces,byte]
+    real_values_t1_r = np.array(labels_dict['t1^r'],dtype = np.uint8)[:n_traces,byte]
+    real_values_s1_r = np.array(labels_dict['s1^r'],dtype = np.uint8)[:n_traces,byte]
+    real_values_r = np.array(labels_dict['r'],dtype = np.uint8)[:n_traces,byte]
+    real_values_i = np.array(labels_dict['i'],dtype = np.uint8)[:n_traces]
+    real_values_t1 = np.array(labels_dict['t1'],dtype = np.uint8)[:n_traces,byte]
+    real_values_s1 = np.array(labels_dict['s1'],dtype = np.uint8)[:n_traces,byte]
+    real_values_k1 = np.array(labels_dict['k1'],dtype = np.uint8)[:n_traces,byte]
     Y_profiling_dict = {}  
-    real_values_beta = np.array(labels_dict['beta'],dtype = np.uint8)[:n_traces]
-    Y_profiling_dict['output_beta'] = get_hot_encode(real_values_beta) if encoded_labels else  real_values_beta    
-    real_values_alpha = np.array(labels_dict['alpha'],dtype = np.uint8)[:n_traces]
-    Y_profiling_dict['output_alpha'] = get_hot_encode(real_values_alpha) if encoded_labels else  real_values_alpha       
-    real_values_rin = np.array(labels_dict['rin'],dtype = np.uint8)[:n_traces]
-    Y_profiling_dict['output_rin'] = get_hot_encode(real_values_rin) if encoded_labels else  real_values_rin 
-    Y_profiling_dict['output_t1_rin'] = get_hot_encode(real_values_t1_rin) if encoded_labels else  real_values_t1_rin 
-    Y_profiling_dict['output_s1_beta'] = get_hot_encode(real_values_s1_beta) if encoded_labels else  real_values_s1_beta
-    Y_profiling_dict['output_permutation'] = get_hot_encode(permutations,classes = 16) if encoded_labels else  permutations
-    Y_profiling_dict['output'] = get_hot_encode(real_values_t1) if encoded_labels else  real_values_t1
 
+    if multi_target:
+        
+        Y_profiling_dict['output_r'] = get_hot_encode(real_values_r) if encoded_labels else  real_values_r    
+        Y_profiling_dict['output_i'] = get_hot_encode(real_values_i) if encoded_labels else  real_values_i       
+        Y_profiling_dict['output_t1_i'] = get_hot_encode(real_values_t1_i) if encoded_labels else  real_values_t1_i 
+        Y_profiling_dict['output_t1_r'] = get_hot_encode(real_values_t1_r) if encoded_labels else  real_values_t1_r 
+        Y_profiling_dict['output_t1_ri'] = get_hot_encode(real_values_t1_ri) if encoded_labels else  real_values_t1_ri
+        Y_profiling_dict['output'] = get_hot_encode(real_values_t1) if encoded_labels else  real_values_t1
+    else:
+        Y_profiling_dict['output_r'] = get_hot_encode(real_values_r) if encoded_labels else  real_values_r    
+        Y_profiling_dict['output_i'] = get_hot_encode(real_values_i) if encoded_labels else  real_values_i       
+        Y_profiling_dict['output_t1_i'] = get_hot_encode(real_values_t1_i) if encoded_labels else  real_values_t1_i 
+        Y_profiling_dict['output_s1_r'] = get_hot_encode(real_values_s1_r) if encoded_labels else  real_values_s1_r 
+        Y_profiling_dict['output_t1'] = get_hot_encode(real_values_t1) if encoded_labels else  real_values_t1
+        Y_profiling_dict['output_s1'] = get_hot_encode(real_values_s1) if encoded_labels else  real_values_s1
+        Y_profiling_dict['output'] = get_hot_encode(real_values_k1) if encoded_labels else  real_values_k1
      
 
                                               
     if training:
-        real_values_t1_rin_val = np.array(labels_dict_val ['t1^rin'],dtype = np.uint8)
-        real_values_s1_beta_val  = np.array(labels_dict_val ['s1^beta'],dtype = np.uint8)
-        real_values_t1_val = np.array(labels_dict_val['t1'],dtype = np.uint8)[:n_traces]
-        real_values_beta_val = np.array(labels_dict_val['beta'],dtype = np.uint8)
-        permutations_val = np.array(labels_dict_val['p'],dtype = np.uint8)[:n_traces]
-        Y_validation_dict = {}
-        Y_validation_dict['output_beta'] = get_hot_encode(real_values_beta_val) if encoded_labels else  real_values_beta_val    
-        real_values_alpha_val = np.array(labels_dict_val['alpha'],dtype = np.uint8)
-        Y_validation_dict['output_alpha'] = get_hot_encode(real_values_alpha_val) if encoded_labels else  real_values_alpha_val       
-        real_values_rin_val = np.array(labels_dict_val['rin'],dtype = np.uint8)
-        Y_validation_dict['output_rin'] = get_hot_encode(real_values_rin_val) if encoded_labels else  real_values_rin_val          
-        
-        Y_validation_dict['output_t1_rin'] = get_hot_encode(real_values_t1_rin_val) if encoded_labels else  real_values_t1_rin_val 
-        Y_validation_dict['output_s1_beta'] = get_hot_encode(real_values_s1_beta_val) if encoded_labels else  real_values_s1_beta_val
-        Y_validation_dict['output_permutation'] = get_hot_encode(permutations_val,classes = 16) if encoded_labels else  permutations_val
-        Y_validation_dict['output'] = get_hot_encode(real_values_t1_val) if encoded_labels else  real_values_t1_val
+        real_values_t1_i_val = np.array(labels_dict_val['t1^i'],dtype = np.uint8)[:,byte]
+        real_values_t1_ri_val = np.array(labels_dict_val['t1^ri'],dtype = np.uint8)[:,byte]
+        real_values_t1_r_val = np.array(labels_dict_val['t1^r'],dtype = np.uint8)[:,byte]
+        real_values_s1_r_val = np.array(labels_dict_val['s1^r'],dtype = np.uint8)[:,byte]
+        real_values_r_val = np.array(labels_dict_val['r'],dtype = np.uint8)[:,byte]
+        real_values_i_val = np.array(labels_dict_val['i'],dtype = np.uint8)
+        real_values_t1_val = np.array(labels_dict_val['t1'],dtype = np.uint8)[:n_traces,byte]
+        real_values_s1_val = np.array(labels_dict_val['s1'],dtype = np.uint8)[:n_traces,byte]
+        real_values_k1_val = np.array(labels_dict_val['k1'],dtype = np.uint8)[:n_traces,byte]
+        Y_validation_dict = {}  
+    
+        if multi_target:
+            
+            Y_validation_dict['output_r'] = get_hot_encode(real_values_r_val)  
+            Y_validation_dict['output_i'] = get_hot_encode(real_values_i_val)       
+            Y_validation_dict['output_t1_i'] = get_hot_encode(real_values_t1_i_val)
+            Y_validation_dict['output_t1_r'] = get_hot_encode(real_values_t1_r_val) 
+            Y_validation_dict['output_t1_ri'] = get_hot_encode(real_values_t1_ri_val)
+            Y_validation_dict['output'] = get_hot_encode(real_values_t1_val)
+        else:
+            Y_validation_dict['output_r'] = get_hot_encode(real_values_r_val)   
+            Y_validation_dict['output_i'] = get_hot_encode(real_values_i_val)     
+            Y_validation_dict['output_t1_i'] = get_hot_encode(real_values_t1_i_val) 
+            Y_validation_dict['output_s1_r'] = get_hot_encode(real_values_s1_r_val) 
+            Y_validation_dict['output_t1'] = get_hot_encode(real_values_t1_val)
+            Y_validation_dict['output_s1'] = get_hot_encode(real_values_s1_val)
+            Y_validation_dict['output'] = get_hot_encode(real_values_k1_val)
+
+
 
         return tf.data.Dataset.from_tensor_slices((X_profiling_dict ,Y_profiling_dict)), tf.data.Dataset.from_tensor_slices(( X_validation_dict,Y_validation_dict)) 
    
     else:
-        return (X_profiling_dict,Y_profiling_dict)    
+        return (X_profiling_dict,Y_profiling_dict)      
 
 
 
@@ -566,399 +592,12 @@ def get_rank_list_from_prob_dist(probdist,l):
         accuracy_top5 += 1 if rank <= 5 else 0
     return res,(accuracy/size)*100,res_score , (accuracy_top5/size)*100
 
-def get_variable_name(string):
-    # sk102-0 -> sk
-    try:
-        return re.search(r'^[a-z]+', string).group(0)
-    except AttributeError:
-        return None
 
-def get_variable_number(string):
-    # sk102-0 -> 102
-    try:
-        return int(re.search(r'\d{3}', string).group(0))
-    except AttributeError:
-        return None
-def normalise_neural_trace(v):
-    # Shift up
-    return v - np.min(v)
-
-def normalise_neural_trace_single(v):
-    return divide_rows_by_max(normalise_neural_trace(v))
-
-def divide_rows_by_max(X):
-    if len(X.shape) == 1:
-        return X / np.max(X)
-    else:
-        return X / np.max(X, axis=1)[:, None]
-def normalise_neural_traces(X):
-
-
-        # DEBUG
-
-    divided_by_max = divide_rows_by_max(X)
-    return divided_by_max
-
-def normalise_traces_to_int8(x):
-    x = normalise_neural_traces(x)
-    x = x  * 128
-    return x.astype(np.int8)
 
 
 def get_hot_encode(label_set,classes = 256):    
     return np.eye(classes)[label_set]
 
 
-
-
-
-def get_windowed(traces,timepoints,window,window_type = "classic"):
-
-    indexes = None
-    for timepoint in timepoints:
-        window_timepoint = window // len(timepoints)
-        index = np.arange(timepoint - window_timepoint//2, timepoint + window_timepoint//2,step = 1)
-        
-        if window_type == "gaussian":
-            try:
-                distr_samples = np.load(TIMEPOINTS_FOLDER + 'gaussian_dist_samples_{}_timepoint_{}.npy'.format(window_timepoint,timepoint))
-            except:
-                x = np.arange(-window_timepoint* 5, window_timepoint * 5 + 1)
-                xU, xL = x + 0.5, x - 0.5 
-                prob = stats.norm.cdf(xU, scale = window_timepoint*2) - stats.norm.cdf(xL, scale = window_timepoint*2)
-                prob = prob / prob.sum() # normalize the probabilities so their sum is 1
-                distr_samples = sorted(np.random.choice(x, size = window_timepoint, p = prob, replace=False))
-                np.save(TIMEPOINTS_FOLDER + 'gaussian_dist_samples_{}_timepoint_{}.npy'.format(window_timepoint,timepoint),distr_samples)
-            index = distr_samples + timepoint
-        if indexes is None:
-            indexes = index
-        else:
-            indexes = np.append(indexes,index,axis = 0)
-            
-            
-    return traces[:,indexes]  
-    
-
-def save_labels(dataset,n_traces = None):
-    masks = None
-    keys = None
-    ciphertexts = None
-    training = 'training' in dataset
-    f = h5py.File(DATASET_FOLDER + FILE_DATASET,'r')
-    dataset_h5 = f.get(dataset)              
-    if 'masks' in dataset_h5:
-        masks = np.array(dataset_h5.get('masks'))
-    plaintexts = np.array(dataset_h5.get('plaintexts'))
-    
-    if 'keys' in dataset_h5:
-        
-        keys = np.array(dataset_h5.get('keys'))
-    if 'ciphertexts' in dataset_h5:
-        ciphertexts = np.array(dataset_h5.get('ciphertexts'))
-  
-    labels_dict = save_real_values(ciphertexts=ciphertexts, plaintexts= plaintexts, random =masks,keys=keys,n_traces = n_traces,save_file = False)   
-
-    file = open(REALVALUES_FOLDER + 'labels_dict{}'.format('' if training else '_{}'.format(dataset)),'wb')
-    pickle.dump(labels_dict,file)
-    file.close()         
-
-
-def save_power_values_windowed(traces,dataset = 'training',target = "s003",window= 2000,window_type = "classic",add_mask_leakage = False):
-
-    if window_type == 'averaged':
-        if traces.shape[0] > 10000:
-            chunk_size = 10000
-            chunk_n = traces.shape[0] // chunk_size
-            for iterations in range(chunk_n):
-                if iterations == 0: 
-                    windowed_traces =preprocess(traces[:chunk_size],10)
-                else:
-                    windowed_traces = np.append(windowed_traces,preprocess(traces[iterations * chunk_size:(iterations+1) * chunk_size],10),axis = 0)
-            
-        else:
-            windowed_traces = preprocess(traces,10)        
-        np.save(POWERVALUES_FOLDER + ('{}_traces_windowt_{}_{}.npy'.format(dataset,window_type,'whole_trace')),normalise_neural_traces(windowed_traces),allow_pickle=True)
-        print('Saved {}'.format(POWERVALUES_FOLDER + ('{}_traces_windowt_{}_{}.npy'.format(dataset,window_type,'whole_trace'))))    
-    
-    elif window_type =='first_round':
-        np.save(POWERVALUES_FOLDER + ('{}_traces{}_windowt_{}_{}.npy'.format(dataset,'_with_mask_leakages' if add_mask_leakage else '',window_type,'all')),traces,allow_pickle=True)
-        print('Saved {}'.format(POWERVALUES_FOLDER + ('{}_traces{}_windowt_{}_{}.npy'.format(dataset,'_with_mask_leakages' if add_mask_leakage else '',window_type,'all'))))
-            
-    
-    
-    elif window_type == 'best_snr':
-        snr = np.load(TIMEPOINTS_FOLDER +target+'_array.npy')
-        sorted_snr = sorted(np.argsort(snr)[-window:])
-        np.save(TIMEPOINTS_FOLDER + '{}_snr_values_wt{}.npy'.format(target,window_type),sorted_snr)
-        windowed_traces = traces[:,sorted_snr]
-        np.save(POWERVALUES_FOLDER + ('{}_traces{}_windowt_{}_{}.npy'.format(dataset,'_with_mask_leakages' if add_mask_leakage else '',window_type,target)),windowed_traces,allow_pickle=True)
-        print('Saved {}'.format(POWERVALUES_FOLDER + ('{}_traces{}_windowt_{}_{}.npy'.format(dataset,'_with_mask_leakages' if add_mask_leakage else '',window_type,target))))
-    else:
-        if target == "alpha":
-            windowed_traces = traces[:,:5000]
-        else:
-            timepoints = sorted(np.load(TIMEPOINTS_FOLDER +target+'.npy'))
-            print('Timepoint : ',timepoints)
-            snr = np.load(TIMEPOINTS_FOLDER +target+'_array.npy')
-            windowed_traces = get_windowed(traces,timepoints,window = window, window_type = window_type)
-            snr_window = get_windowed(snr.reshape(1,-1) ,timepoints,window = window, window_type = window_type)[0]
-            np.save(TIMEPOINTS_FOLDER + '{}_snr_values_wt{}.npy'.format(target,window_type),snr_window)
-            if add_mask_leakage and (not len(MASKS) == 0):
-                if not target in MASKS:
-                    for masks in MASKS:
-                        if masks in target:                    
-                            timepoint = np.load(TIMEPOINTS_FOLDER+masks+'.npy')                    
-                            windows_masks = get_windowed(traces, timepoint, window,window_type= window_type)  
-                            windowed_traces = np.concatenate([windowed_traces,windows_masks],axis = 1)
-        
-        np.save(POWERVALUES_FOLDER + ('{}_traces{}_windowt_{}_{}.npy'.format(dataset,'_with_mask_leakages' if add_mask_leakage else '',window_type,target)),windowed_traces,allow_pickle=True)
-        print('Saved {}'.format(POWERVALUES_FOLDER + ('{}_traces{}_windowt_{}_{}.npy'.format(dataset,'_with_mask_leakages' if add_mask_leakage else '',window_type,target))))
-    return
-
-
-def save_meaned_trace(target = "s1",window_type = "classic",add_mask_leakage = False):
-    traces = None
-    labels = None
-    file = open(REALVALUES_FOLDER+ 'labels_dict','rb')
-    labels_dict =np.array(pickle.load(file)[target])
-    file.close()
-    byte_count = 0
-    
-    count_traces = {}
-    for byte_target in VARIABLE_LIST[target]:
-        print(byte_target)
-        traces = np.load(POWERVALUES_FOLDER + ('training_traces{}_windowt_{}_{}.npy'.format('_with_mask_leakages' if add_mask_leakage else '',window_type,byte_target)))
-        print(traces.shape)
-        labels = labels_dict[:,byte_count]
-        
-        for val in range(256):
-            indexes_val = np.where(labels == val)[0]
-            mean_trace_intermediate= np.mean(traces[indexes_val],axis = 0)
-            np.save(POWERVALUES_FOLDER +'meaned_traces_val{}_target_{}.npy'.format(val,byte_target),normalise_neural_trace_single(mean_trace_intermediate))
-       
-            # np.save(POWERVALUES_FOLDER +'meaned_traces_val{}_target{}.npy'.format(val,byte_target),mean_trace_intermediate[byte_target][val] )
-        byte_count += 1
-
-    return
-
- 
-def normalise_predictions(pred):
-    return pred / sum(pred)
-def normalise_correlations(pred):
-    return pred / max(pred)
-
-
-
-def preprocess(traces,coef = 10):
-    return  sig.resample(traces,traces.shape[1]//coef,axis=1)    
- 
-
-
-def save_average_correlation(target):
-    l = []
-    for byte_target in VARIABLE_LIST[target]:
-        l.append(np.load(TIMEPOINTS_FOLDER+ byte_target +'_array.npy'))
-    np.save(TIMEPOINTS_FOLDER+ 'average_correlations.npy',np.mean(np.array(l),axis = 0))
-        
-
-def get_var(f):
-    return f.split('_')[0]
-
-def get_factor(f):
-    end = f.split('_')[-1]
-    try:
-        return int(end.split('.pkl')[0])
-    except:
-        return float(end.split('.pkl')[0])
-
-def get_factor_h5(f):
-    end = f.split('_')[-2]
-    try:
-        return int(end)
-    except:
-        return float(end)
-def get_factor_elem(f):
-    end = f.split('_')[1]
-    try:
-        return int(end)
-    except:
-        return float(end)
-  
-def get_epochs(file):
-    end = file.split('_')[-1]
-    try:
-        return int(end.split('.h5')[0])
-    except:
-        return float(end.split('.h5')[0])   
-  
-def corrLossWrapper(weights):
-
-    def correlationLoss(x,y, axis=-2):
-      """Loss function that maximizes the pearson correlation coefficient between the predicted values and the labels,
-      while trying to have the same mean and variance"""
-      x = tf.convert_to_tensor(x)
-      y = tf.cast(y, x.dtype)
-      n = tf.cast(tf.shape(x)[axis], x.dtype)
-      xsum = tf.reduce_sum(x, axis=axis)
-      ysum = tf.reduce_sum(y, axis=axis)
-      xmean = xsum / n
-      ymean = ysum / n
-      xsqsum = tf.reduce_sum( tf.cast((weights),tf.float32) * tf.math.squared_difference(x, xmean), axis=axis)
-      ysqsum = tf.reduce_sum( tf.cast((weights),tf.float32) * tf.math.squared_difference(y, ymean), axis=axis)
-      cov = tf.reduce_sum( tf.cast((weights),tf.float32) * (x - xmean) * (y - ymean), axis=axis)
-      corr = cov / tf.sqrt(xsqsum * ysqsum)
-      # absdif = tmean(tf.abs(x - y), axis=axis) / tf.sqrt(yvar)
-      sqdif = tf.reduce_sum(tf.math.squared_difference(x, y), axis=axis) / n / tf.sqrt(ysqsum / n)
-      # meandif = tf.abs(xmean - ymean) / tf.abs(ymean)
-      # vardif = tf.abs(xvar - yvar) / yvar
-      # return tf.convert_to_tensor( K.mean(tf.constant(1.0, dtype=x.dtype) - corr + (meandif * 0.01) + (vardif * 0.01)) , dtype=tf.float32 )
-      return tf.convert_to_tensor( K.mean(1 - corr + (0.01 * sqdif)) , dtype=tf.float32 )
-    return  correlationLoss
-
-def tf_median_probability_loss(y_true, y_pred):
-    # undo one-hot
-    
-    argmaxed_onehot = tf.argmax(y_true, output_type=tf.int32, axis=1)
-    # reshape
-
-    reshaped_onehot = tf.expand_dims(argmaxed_onehot, 1)
-    # get tensor ([0,1,2,...])
-    tf_range = tf.range(tf.shape(y_pred)[0], dtype=tf.int32)
-    # reshape
-
-    reshaped_tf_range = tf.expand_dims(tf_range, 1)
-    # Concatenate range to onehot
-
-    
-    concatenated_onehot = tf.concat([reshaped_tf_range, reshaped_onehot], 1)
-    # Gather the probabilities together!
-    gathered = tf.gather_nd(y_pred, concatenated_onehot)
-    # Take the mean of these ranks (float value)
-    median = 1 - tf.cast(tfp.stats.percentile(gathered, 50.0), tf.float32)
-    # print "Our Rank Median:\ntype {} ({}), shape {}".format(type(median), median.dtype, median.get_shape())
-    return median
-
-
-def tf_rank_loss(y_true, y_pred):
-    output = y_pred
-    target = y_true
-    axis = -1
-
-    # scale preds so that the class probas of each sample sum to 1
-    output = output / tf.math.reduce_sum(output, keepdims=True)
-    # manual computation of crossentropy
-    epsilon_ = tf.convert_to_tensor(K.epsilon(), dtype=output.dtype.base_dtype)
-    clipped_output = tf.clip_by_value(output, epsilon_, 1. - epsilon_)
-    return_val = -tf.math.reduce_sum(target * tf.math.log(clipped_output))
-
-    # Our bit: Rank!
-
-    # Sort once to get each index ranking
-    argsort1 = tf.argsort(y_pred, direction='DESCENDING')
-    # Sort the sorted to put them in a nice order for us
-    argsort2 = tf.argsort(argsort1, direction='ASCENDING')
-    # undo one-hot
-    argmaxed_onehot = tf.argmax(y_true, output_type=tf.int32, axis=1)
-    # reshape
-    reshaped_onehot = tf.expand_dims(argmaxed_onehot, 1)
-    # get tensor ([0,1,2,...])
-    tf_range = tf.range(tf.shape(argsort2)[0], dtype=tf.int32)
-    # reshape
-    reshaped_tf_range = tf.expand_dims(tf_range, 1)
-    # Concatenate range to onehot
-    concatenated_onehot = tf.concat([reshaped_tf_range, reshaped_onehot], 1)
-    # Gather the ranks together!
-    gathered = tf.gather_nd(argsort2, concatenated_onehot)
-    # Take the mean of these ranks (float value)
-    mean = tf.cast(tf.reduce_mean(gathered), tf.float32)
-    return return_val + mean
-    
-
-
-if __name__ == "__main__":
-
-
-    parser = argparse.ArgumentParser(description='Save power traces values for targets')
-
-    parser.add_argument('-w', '-window',  action="store", dest="WINDOW", help='Size window saved',
-                        type=int, default=2000)
-    parser.add_argument('-t', '-traces',  action="store", dest="N_TRACES", help='Size window saved',
-                        type=int, default=100000)
-
-    
-    parser.add_argument('-target', action="store", dest="TARGET",
-                        help='Target the selected target', type=str, default='t1^uv')
-    parser.add_argument('-wt', action="store", dest="WINDOW_TYPE",
-                        help='Target the selected target', type=str, default='classic')
-    parser.add_argument('--ADD', action="store_true", dest="ADD_MASK_LEAKAGE",
-                        help='Add leakage of masks',  default=False)
-    parser.add_argument('--HW', action="store_true", dest="HW",
-                        help='perform on HW instead of identity',  default=False)
-
-    parser.add_argument('--MEAN', action="store_true", dest="MEAN", help='for test dataset', default=False)
-    parser.add_argument('--SAVE_POWER_VAL', action="store_true", dest="SAVE_POWER_VAL", help='for test dataset', default=False)
-    parser.add_argument('--LABELS', action="store_true", dest="LABELS", help='for test dataset', default=False)
-    parser.add_argument('--TEST', action="store_true", dest="TEST", help='for test dataset', default=False)
-    parser.add_argument('--ATTACK', action="store_true", dest="ATTACK", help='for attack dataset', default=False)
-    parser.add_argument('--PROPAGATION', action="store_true", dest="PROPAGATION", help='for attack dataset', default=False)
-    args            = parser.parse_args()
-  
-    TARGET         = args.TARGET
-    ATTACK         = args.ATTACK
-    ADD_MASK_LEAKAGE = args.ADD_MASK_LEAKAGE
-    LABELS = args.LABELS
-    TEST = args.TEST
-    MEAN = args.MEAN
-    PROPAGATION = args.PROPAGATION
-    SAVE_POWER_VAL = args.SAVE_POWER_VAL
-    WINDOW = args.WINDOW
-    WINDOW_TYPE = args.WINDOW_TYPE
-    N_TRACES = args.N_TRACES
-    
-    
-    print('Loading traces ! ')
-    dataset = 'training'
-    if TEST:
-        dataset = 'test'
-    if ATTACK:
-        dataset = 'attack'
-    
-    if LABELS:
-        save_labels(dataset,n_traces = N_TRACES)
-    
-    if SAVE_POWER_VAL :
-        traces = load_traces_from_dataset(dataset = dataset,n_traces = N_TRACES)
-        
-        if PROPAGATION:
-            windowed_traces = None
-            for intermediate in INTERMEDIATES:
-                
-                if intermediate == 's2' or intermediate == 'k2' or intermediate == 't2':
-                    continue
-                print(intermediate)
-                n_round = '1' if '1' in intermediate else '2'
-                
-                intermediate_split = intermediate.split(n_round)[0]
-                start = 0 if n_round == '1' else 16
-                end =  16 if n_round == '1' else 32
-                end = 12 if intermediate == 'h1' else end
-                timepoints = np.load(TIMEPOINTS_FOLDER + '{}.npy'.format(intermediate_split))[start:end]                  
-                if windowed_traces is None:
-                    windowed_traces = get_windowed(traces, timepoints, WINDOW)
-                else:
-                    windowed_traces = np.append(windowed_traces,get_windowed(traces, timepoints, WINDOW),axis = 1)
-            np.save(POWERVALUES_FOLDER + '{}_propagation_traces.npy'.format(dataset),windowed_traces,allow_pickle = True)
-        else:
-            if not WINDOW_TYPE == "averaged" and not  WINDOW_TYPE == "first_round" :
-                for byte_target in VARIABLE_LIST[TARGET]:    
-                    print('Starting to save for {}'.format(byte_target))
-                    save_power_values_windowed(traces,target = byte_target,dataset = dataset,window_type = WINDOW_TYPE,window = WINDOW,add_mask_leakage = ADD_MASK_LEAKAGE)
-                  
-            else:
-                save_power_values_windowed(traces,target = TARGET,dataset = dataset,window_type = WINDOW_TYPE,window = WINDOW,add_mask_leakage = ADD_MASK_LEAKAGE)
-    if MEAN:
-        save_meaned_trace(target = TARGET,window_type=WINDOW_TYPE,add_mask_leakage = ADD_MASK_LEAKAGE) 
-        
-            
 
 

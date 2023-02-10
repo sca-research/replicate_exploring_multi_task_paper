@@ -181,7 +181,7 @@ def cnn_hierarchical_subbytes_inputs(input_length=250000, learning_rate=0.001, c
 
 
     
-    model = Model(inputs = inputs_dict,outputs = outputs,name='cnn_unmasking_multiple_shares')
+    model = Model(inputs = inputs_dict,outputs = outputs,name='cnn_hierarchical_subbytes_inputs')
     optimizer = Adam(learning_rate=learning_rate)
     model.compile(loss=losses, optimizer=optimizer, metrics=['accuracy'],loss_weights = weights)
     model.summary()
