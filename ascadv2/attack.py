@@ -19,7 +19,7 @@ from train_models import cnn_best,cnn_multi_target,cnn_hierarchical
 
 
 class Attack:
-    def __init__(self,n_experiments = 1,individual = False,multi = False,hierarchical = False):
+    def __init__(self,n_experiments = 1,individual = False,multi = False,hierarchical = False,target = 't'):
         
         self.models = {}
         self.individual = individual
@@ -152,11 +152,6 @@ class Attack:
                         predictions_s1 = MultiLayer()([predictions_s1_before_alpha,get_hot_encode(self.alpha[batch_size*batch:batch_size*(batch +1)])])
                         predictions_t1_from_s1 = predictions_s1[:,mapping]
                         predictions_sum_t1 = predictions_t1_from_s1 
-                    elif self.target == 't':
-                        predictions_t1_rin[byte,batch_size*batch:batch_size*(batch +1)] = self.models['t1_rin'].predict({'traces':self.powervalues[byte][batch_size*batch:batch_size*(batch +1),3150:3350]},verbose=0)['output']
-                        predictions_t1_before_alpha = XorLayer()([predictions_t1_rin[byte,batch_size*batch:batch_size*(batch +1)],predictions_rin[batch_size*batch:batch_size*(batch +1)]])
-                        predictions_t1 = MultiLayer()([predictions_t1_before_alpha,get_hot_encode(self.alpha[batch_size*batch:batch_size*(batch +1)])])
-                        predictions_sum_t1 = predictions_t1
                     else:
                         predictions_s1_beta[byte,batch_size*batch:batch_size*(batch +1)] = self.models['s1_beta'].predict({'traces':self.powervalues[byte][batch_size*batch:batch_size*(batch +1),3150:3350]},verbose=0)['output']
                         predictions_s1_before_alpha = XorLayer()([predictions_s1_beta[byte,batch_size*batch:batch_size*(batch +1)],predictions_beta[batch_size*batch:batch_size*(batch +1)]])
@@ -273,6 +268,7 @@ if __name__ == "__main__":
                         type=int, default=1000)
     parser.add_argument('--INDIV', action="store_true", dest="INDIV", help='for attack dataset', default=False)
     parser.add_argument('--MULTI', action="store_true", dest="MULTI", help='for attack dataset', default=False)
+    parser.add_argument('--HIERARCHICAL', action="store_true", dest="HIERARCHICAL", help='for attack dataset', default=False)
     parser.add_argument('-t', action="store", dest="TARGET", help='Number of Epochs in Training (default: 75 CNN, 100 MLP)',
                         type=str, default='k')
     
@@ -284,11 +280,12 @@ if __name__ == "__main__":
     EXPERIMENT = args.EXPERIMENT
     INDIV = args.INDIV
     MULTI = args.MULTI
+    HIERARCHICAL = args.HIERARCHICAL
     TARGET = args.TARGET
     
     
 
-    attack = Attack(n_experiments = EXPERIMENT,individual= INDIV,multi = MULTI,target = TARGET)
+    attack = Attack(n_experiments = EXPERIMENT,individual= INDIV,multi = MULTI,herarchical = HIERARCHICAL,target = TARGET)
     attack.run()
                   
                             
