@@ -152,3 +152,4 @@ cython_debug/
 #.idea/
 ascadv2/utils/xor_mapping.npy
 ascadv2/utils/mult_mapping.npy
+ascadv1/utils/xor_mapping.npy

@@ -359,7 +359,6 @@ if __name__ == "__main__":
         training_types = ['hierarchical']
         TARGETS['hierarchical'] = ['t1']
         BYTES = ['all']
-        #BYTES = [4,5,6,7,9,10,11,12,13,15,16]
     
     else:
         print('No training mode selected')
@@ -375,6 +374,8 @@ if __name__ == "__main__":
                     process_eval = Process(target=train_model, args=(training_type,target_byte if not BYTE == 'all' else 'all_{}'.format(TARGET),TARGET))
                     process_eval.start()
                     process_eval.join()
+                    if BYTE == 'all':
+                        break
 
     print("$ Done !")
             

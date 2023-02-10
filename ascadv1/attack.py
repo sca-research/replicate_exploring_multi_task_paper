@@ -51,10 +51,10 @@ class Attack:
                 self.models['rin'] = load_model_from_target(model_struct,'rin') 
         elif multi:
             model_struct_propagation = cnn_multi_target()
-            self.models['multi'] = load_model_multi_target(model_struct_propagation)
+            self.models['multi'] = load_model_multi_target(model_struct_propagation,shared = False)
         elif hierarchical:
             model_struct_propagation = cnn_hierarchical()
-            self.models['hierarchical'] = load_model_hierarchical(model_struct_propagation)
+            self.models['hierarchical'] = load_model_hierarchical(model_struct_propagation,shared = True)
         else:
             print('Im confused, you didnt chose a model type --INDIV, --MULTI, --HIERARCHICAL')
             return
