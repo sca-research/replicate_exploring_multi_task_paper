@@ -317,13 +317,15 @@ def load_model_hierarchical(structure):
 
 
 
-def read_from_h5_file(file = None,n_traces = 1000,masked = False,dataset = 'training'):   
+def read_from_h5_file(n_traces = 1000,dataset = 'training',load_plaintexts = False):   
     
     f = h5py.File(DATASET_FOLDER + FILE_DATASET,'r')[dataset]  
     labels_dict = f['labels']
-    data =  {'keys':f['keys']   ,'plaintexts':f['plaintexts']}
-
-    return  f['traces'][:n_traces] , labels_dict, data
+    if load_plaintexts:
+        data =  {'keys':f['keys']   ,'plaintexts':f['plaintexts']}
+        return  f['traces'][:n_traces] , labels_dict, data
+    else:
+        return  f['traces'][:n_traces] , labels_dict
 def get_byte(i):
     for b in range(17,1,-1):
         if str(b) in i:
