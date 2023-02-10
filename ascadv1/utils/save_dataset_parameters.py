@@ -31,7 +31,7 @@ dict_parameters['KEY'] = 0x00112233445566778899AABBCCDDEEFF
 
 ########### PATHS & FILE MANAGEMENT ######################################
 DATASET_FOLDER= 'D:/dataset_masked_AES/dataset_ASCADv2/'  if sys.platform == 'win32' else '/srv/datasets/dataset_ASCAD_v2/'
-FILE_DATASET = 'Ascad_v2_dataset_extracted_v1.h5'
+FILE_DATASET = 'Ascad_v1_dataset.h5'
 PROJECT_FOLDER = 'C:/Users/martho/Documents/replicate_multi_task_paper/ascadv2/'  if sys.platform == 'win32' else '/home/martho/Projets/replicate_multi_task_paper/ascadv2/'
 
 dict_parameters['DATASET_FOLDER'] = DATASET_FOLDER
