@@ -416,7 +416,7 @@ def load_dataset_hierarchical(byte,n_traces = 250000,multi_target =False,dataset
 
     if print_logs :
         print('Loaded inputs')    
-        
+    print(labels_dict.keys())
     real_values_t1_i = np.array(labels_dict['t1^i'],dtype = np.uint8)[:n_traces,byte]
     real_values_t1_ri = np.array(labels_dict['t1^ri'],dtype = np.uint8)[:n_traces,byte]
     real_values_t1_r = np.array(labels_dict['t1^r'],dtype = np.uint8)[:n_traces,byte]
