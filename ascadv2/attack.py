@@ -8,7 +8,7 @@ from utility import *
 
 from gmpy2 import mpz,mul
 
-from train_models import cnn_best,cnn_propagation,cnn_propagation_shared
+from train_models import cnn_best,cnn_multi_target,cnn_hierarchical
 
 
 
