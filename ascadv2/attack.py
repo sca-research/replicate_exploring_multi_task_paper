@@ -246,7 +246,12 @@ class Attack:
                else:
                    count_trace += 1
                print('\n')
-               
+       array_total_rank = np.empty((self.n_experiments,self.traces_per_exp))
+       for i in range(self.n_experiments):
+           for j in range(self.traces_per_exp):
+               array_total_rank[i][j] =  self.history_score[i]['total_rank'][j] 
+       whe = np.where(np.mean(array_total_rank,axis=0) < 2)[0]
+       print('The full key is recovered on average at trace (Guessing entropy < 2) : ',(np.min(whe) if whe.shape[0] >= 1 else 50))                   
        if self.individual:       
            typ = 'indiv' 
        elif self.hierarchical:
