@@ -344,12 +344,15 @@ if __name__ == "__main__":
                         help='Classical training of the intermediates', default=False)
     parser.add_argument('--MULTI',   action="store_true", dest="MULTI", help='Adding the masks to the labels', default=False)
     parser.add_argument('--HIERARCHICAL',   action="store_true", dest="HIERARCHICAL", help='Adding the masks to the labels', default=False)
+    parser.add_argument('--ALL',   action="store_true", dest="ALL", help='Adding the masks to the labels', default=False)
+        
     args            = parser.parse_args()
   
 
     HIERARCHICAL        = args.HIERARCHICAL
     CLASSICAL        = args.CLASSICAL
     MULTI = args.MULTI
+    ALL = args.ALL
 
     TARGETS = {}
     if CLASSICAL:   
@@ -365,7 +368,12 @@ if __name__ == "__main__":
         training_types = ['hierarchical']
         TARGETS['hierarchical'] = ['t1']
         BYTES = ['all']
-    
+    elif ALL:
+        training_types = ['hierarchical','multi','classical']
+        TARGETS['hierarchical'] = ['t1']
+        TARGETS['multi'] = ['t1']
+        TARGETS['classical'] = ['s1^beta','rin','alpha'] 
+        BYTES = ['all']   
     else:
         print('No training mode selected')
         
