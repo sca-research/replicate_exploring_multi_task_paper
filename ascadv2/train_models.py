@@ -309,14 +309,14 @@ def train_model(training_type,variable,intermediate):
     if  training_type == 'multi':
         monitor = 'val_loss'
     if training_type == 'hierarchical':
-        monitor = 'val_output_accuracy'
+        monitor = 'val_loss'
     file_name = '{}_{}'.format( variable ,model_t) 
     print(file_name)
     callbacks = tf.keras.callbacks.ModelCheckpoint(
                                 filepath= MODEL_FOLDER+ file_name+'.h5',
                                 save_weights_only=True,
                                 monitor=monitor,
-                                mode='max' if not training_type == 'multi' else 'min',
+                                mode='max' if training_type == 'classical' else 'min',
                                 save_best_only=True)
 
     
