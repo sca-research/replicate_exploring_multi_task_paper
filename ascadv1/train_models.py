@@ -177,7 +177,7 @@ def cnn_hierarchical_subbytes_inputs(input_length=250000, learning_rate=0.001, c
       
     inputs_dict['traces'] = inputs    
 
-
+    print(output.keys())
     
     model = Model(inputs = inputs_dict,outputs = outputs,name='cnn_hierarchical_subbytes_inputs')
     optimizer = Adam(learning_rate=learning_rate)
