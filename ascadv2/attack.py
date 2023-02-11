@@ -17,7 +17,11 @@ import numpy as np
 import tensorflow as tf
 import pickle 
 import argparse
+seed = 7
 
+
+tf.random.set_seed(seed)
+np.random.seed(seed)
 
 
 
