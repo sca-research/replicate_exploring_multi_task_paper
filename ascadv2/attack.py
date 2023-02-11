@@ -38,15 +38,15 @@ class Attack:
                 model_struct =  cnn_best(input_length=4749)
                 self.models['beta'] =  load_model_from_target(model_struct,'beta') 
                 model_struct_intermediate =  cnn_best(input_length=200,name = '_') 
-                self.models['s1_beta'] = load_model_from_target(model_struct_intermediate,'s1_beta') 
+                self.models['s1_beta'] = load_model_from_target(model_struct_intermediate,'s1^beta') 
                 
             else:
                 model_struct =  cnn_best(input_length=4749)
                 self.models['beta'] =  load_model_from_target(model_struct,'beta') 
                 model_struct_intermediate =  cnn_best(input_length=200,name = '_') 
-                self.models['s1_beta'] = load_model_from_target(model_struct_intermediate,'s1_beta')        
+                self.models['s1_beta'] = load_model_from_target(model_struct_intermediate,'s1^beta')        
                 model_struct_intermediate =  cnn_best(input_length=200,name = '_') 
-                self.models['t1_rin'] = load_model_from_target(model_struct_intermediate,'t1_rin') 
+                self.models['t1_rin'] = load_model_from_target(model_struct_intermediate,'t1^rin') 
                 model_struct =  cnn_best(input_length=4749)
                 self.models['rin'] = load_model_from_target(model_struct,'rin') 
         elif multi:
