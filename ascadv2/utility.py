@@ -294,7 +294,7 @@ def load_model_from_target(structure , target):
     structure.load_weights(model_file)
     return structure    
 
-def load_model_multi_target(structure ):
+def load_model_multi_task(structure ):
     model_file  = MODEL_FOLDER+ ('{}_{}.h5'.format('all_t1' ,'cnn_multi_target')  )
     print('Loading model {}'.format(model_file))
     structure.load_weights(model_file)
