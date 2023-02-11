@@ -369,7 +369,7 @@ if __name__ == "__main__":
         TARGETS['hierarchical'] = ['t1']
         BYTES = ['all']
     elif ALL:
-        training_types = ['classical']
+        training_types = ['hierarchical']
         TARGETS['hierarchical'] = ['t1']
         TARGETS['multi'] = ['t1']
         TARGETS['classical'] = ['beta'] 
