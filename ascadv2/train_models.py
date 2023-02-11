@@ -308,7 +308,7 @@ def train_model(training_type,variable,intermediate):
     monitor = 'val_accuracy'
     if  training_type == 'multi':
         monitor = 'val_loss'
-    if training_type == 'propagation':
+    if training_type == 'hierarchical':
         monitor = 'val_output_accuracy'
     file_name = '{}_{}'.format( variable ,model_t) 
     print(file_name)
@@ -369,10 +369,10 @@ if __name__ == "__main__":
         TARGETS['hierarchical'] = ['t1']
         BYTES = ['all']
     elif ALL:
-        training_types = ['hierarchical','multi','classical']
+        training_types = ['classical']
         TARGETS['hierarchical'] = ['t1']
         TARGETS['multi'] = ['t1']
-        TARGETS['classical'] = ['s1^beta','rin','alpha'] 
+        TARGETS['classical'] = ['beta'] 
         BYTES = ['all']   
     else:
         print('No training mode selected')
