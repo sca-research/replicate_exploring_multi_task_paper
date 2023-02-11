@@ -80,7 +80,7 @@ class Attack:
             0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16,
             )
         
-        traces , labels_dict, metadata = read_from_h5_file(n_traces = 50000,dataset = 'attack')
+        traces , labels_dict, metadata = read_from_h5_file(n_traces = 50000,dataset = 'attack',load_plaintexts = True)
         self.correct_guesses = {}
         self.history_score = {}
         self.traces_per_exp = 100
