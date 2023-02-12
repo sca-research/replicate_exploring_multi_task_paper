@@ -429,7 +429,7 @@ def load_dataset_multi(n_traces = None,dataset = 'training',encoded_labels = Tru
     Y_profiling_dict['output_rin'] = get_hot_encode(real_values_rin) if encoded_labels else  real_values_rin 
     Y_profiling_dict['output_t1_rin'] = get_hot_encode(real_values_t1_rin) if encoded_labels else  real_values_t1_rin 
     Y_profiling_dict['output_s1_beta'] = get_hot_encode(real_values_s1_beta) if encoded_labels else  real_values_s1_beta
-    Y_profiling_dict['output_permutation'] = get_hot_encode(permutations,classes = 16) if encoded_labels else  permutations
+    # Y_profiling_dict['output_permutation'] = get_hot_encode(permutations,classes = 16) if encoded_labels else  permutations
 
 
      
@@ -449,7 +449,7 @@ def load_dataset_multi(n_traces = None,dataset = 'training',encoded_labels = Tru
         
         Y_validation_dict['output_t1_rin'] = get_hot_encode(real_values_t1_rin_val) if encoded_labels else  real_values_t1_rin_val 
         Y_validation_dict['output_s1_beta'] = get_hot_encode(real_values_s1_beta_val) if encoded_labels else  real_values_s1_beta_val
-        Y_validation_dict['output_permutation'] = get_hot_encode(permutations_val,classes = 16) if encoded_labels else  permutations_val
+        # Y_validation_dict['output_permutation'] = get_hot_encode(permutations_val,classes = 16) if encoded_labels else  permutations_val
 
 
 
@@ -505,7 +505,7 @@ def load_dataset_hierarchical(n_traces = 250000,dataset = 'training',encoded_lab
     Y_profiling_dict['output_rin'] = get_hot_encode(real_values_rin) if encoded_labels else  real_values_rin 
     Y_profiling_dict['output_t1_rin'] = get_hot_encode(real_values_t1_rin) if encoded_labels else  real_values_t1_rin 
     Y_profiling_dict['output_s1_beta'] = get_hot_encode(real_values_s1_beta) if encoded_labels else  real_values_s1_beta
-    Y_profiling_dict['output_permutation'] = get_hot_encode(permutations,classes = 16) if encoded_labels else  permutations
+    # Y_profiling_dict['output_permutation'] = get_hot_encode(permutations,classes = 16) if encoded_labels else  permutations
     Y_profiling_dict['output'] = get_hot_encode(real_values_t1) if encoded_labels else  real_values_t1
 
      
@@ -526,7 +526,7 @@ def load_dataset_hierarchical(n_traces = 250000,dataset = 'training',encoded_lab
         
         Y_validation_dict['output_t1_rin'] = get_hot_encode(real_values_t1_rin_val) if encoded_labels else  real_values_t1_rin_val 
         Y_validation_dict['output_s1_beta'] = get_hot_encode(real_values_s1_beta_val) if encoded_labels else  real_values_s1_beta_val
-        Y_validation_dict['output_permutation'] = get_hot_encode(permutations_val,classes = 16) if encoded_labels else  permutations_val
+        # Y_validation_dict['output_permutation'] = get_hot_encode(permutations_val,classes = 16) if encoded_labels else  permutations_val
         Y_validation_dict['output'] = get_hot_encode(real_values_t1_val) if encoded_labels else  real_values_t1_val
 
         return tf.data.Dataset.from_tensor_slices((X_profiling_dict ,Y_profiling_dict)), tf.data.Dataset.from_tensor_slices(( X_validation_dict,Y_validation_dict)) 
