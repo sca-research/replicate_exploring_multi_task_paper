@@ -35,8 +35,6 @@ class Attack:
         self.hierarchical = hierarchical
         self.target =hierarchical
         model_struct =  cnn_best(input_length=4749,name = 'p')
-        self.models['permutation'] = load_model_from_target(model_struct,'p') 
-            
         if individual:
             model_struct =  cnn_best(input_length=4749,name = 'p')
             self.models['permutation'] = load_model_from_target(model_struct,'p') 
