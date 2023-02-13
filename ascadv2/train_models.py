@@ -111,7 +111,7 @@ def cnn_multi_task(learning_rate=0.0001, classes=256, dense_units=1000):
     preds = {}
     outputs = {}    
     main_branch = resnet_core(input_traces,name = 'main_branch')
-    targets_name  = ['alpha','beta','rin','t1_rin','s1_beta']
+    targets_name  = ['alpha','beta','rin','t1_rin','s1_beta','permutation']
     for name in targets_name:
 
         pred = predictions_branch(main_branch,2,dense_units,name =name,permutation = name == 'permutation' )       
@@ -157,7 +157,7 @@ def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=1000):
     outputs = {}
     
     main_branch = resnet_core(input_traces,name = 'main_branch')
-    targets_name  = ['alpha','beta','rin','t1_rin','s1_beta']
+    targets_name  = ['alpha','beta','rin','t1_rin','s1_beta','permutation']
     
     for name in targets_name:
 
