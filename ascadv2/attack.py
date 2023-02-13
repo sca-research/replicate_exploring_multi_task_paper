@@ -33,8 +33,7 @@ class Attack:
         self.individual = individual
         self.multi = multi
         self.hierarchical = hierarchical
-        self.target =hierarchical
-        model_struct =  cnn_best(input_length=4749,name = 'p')
+        self.target = target
         if individual:
             model_struct =  cnn_best(input_length=4749,name = 'p')
             self.models['permutation'] = load_model_from_target(model_struct,'p') 
@@ -123,8 +122,7 @@ class Attack:
                 
                 if not individual  and not multi:
                     all_predictions = self.models['hierarchical'].predict({'traces':self.powervalues[byte][batch_size*batch:batch_size*(batch +1)] },verbose=0 ,batch_size = 250)    
-                    predictions_permutation[byte,batch_size*batch:batch_size*(batch +1)] = self.models['permutation'].predict({'traces':self.powervalues[byte][batch_size*batch:batch_size*(batch +1)]},verbose=0)['output']
-                        
+                    predictions_permutation[byte,batch_size*batch:batch_size*(batch +1)] = all_predictions['output_permutation']
                     predictions_non_permuted[byte,batch_size*batch:batch_size*(batch +1)] = all_predictions['output']
                     
                 elif multi:
@@ -136,8 +134,8 @@ class Attack:
                     predictions_t1_rin[byte,batch_size*batch:batch_size*(batch +1)] = all_predictions['output_t1_rin']
                     predictions_s1_beta[byte,batch_size*batch:batch_size*(batch +1)] = all_predictions['output_s1_beta']
     
-                    predictions_permutation[byte,batch_size*batch:batch_size*(batch +1)] = self.models['permutation'].predict({'traces':self.powervalues[byte][batch_size*batch:batch_size*(batch +1)]},verbose=0)['output']
-                        
+                    predictions_permutation[byte,batch_size*batch:batch_size*(batch +1)] = all_predictions['output_permutation']
+                    
                     predictions_t1_before_alpha = XorLayer()([predictions_t1_rin[byte,batch_size*batch:batch_size*(batch +1)],predictions_rin[batch_size*batch:batch_size*(batch +1)]])
                     predictions_s1_before_alpha = XorLayer()([predictions_s1_beta[byte,batch_size*batch:batch_size*(batch +1)],predictions_beta[batch_size*batch:batch_size*(batch +1)]])
                     predictions_t1 = MultiLayer()([predictions_t1_before_alpha,predictions_alpha[batch_size*batch:batch_size*(batch +1)]])
