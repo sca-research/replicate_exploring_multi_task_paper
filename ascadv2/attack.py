@@ -84,11 +84,11 @@ class Attack:
             0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16,
             )
         
-        traces , labels_dict, metadata = read_from_h5_file(n_traces = 200000,dataset = 'attack',load_plaintexts = True)
+        traces , labels_dict, metadata = read_from_h5_file(n_traces = 10000,dataset = 'attack',load_plaintexts = True)
         self.correct_guesses = {}
         self.history_score = {}
         self.traces_per_exp = 100
-        self.n_total_attack_traces = 200000
+        self.n_total_attack_traces = 10000
         self.predictions = np.zeros((16,self.n_total_attack_traces,256))
         predictions_non_permuted = np.empty((16,self.n_total_attack_traces,256))
         predictions_permutation = np.empty((16,self.n_total_attack_traces,16))
@@ -110,7 +110,7 @@ class Attack:
         self.plaintexts = plaintexts
         # encoded_plaintexts = np.array([get_hot_encode(self.plaintexts[:,byte]) for byte in range(16)],dtype = np.float32)
         # encoded_plaintexts = np.swapaxes(encoded_plaintexts, 1, 0)
-        batch_size = 10000
+        batch_size = 1000
         powervalues_common = traces[:,:3150]
         for byte in range(16):
             self.powervalues[byte] = np.concatenate([powervalues_common,traces[:,3150 + byte * (4749 - 3150):3150 + (byte+1) * (4749 - 3150) ]],axis = 1)
