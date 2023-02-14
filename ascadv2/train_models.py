@@ -69,7 +69,7 @@ def cnn_from_masure(inputs):
 
 ### Single-Task Models
 
-def cnn_best(input_length=1000, learning_rate=0.0001, classes=256, dense_units=1000 , name ='',input_layer = 'classic'):
+def cnn_best(input_length=1000, learning_rate=0.0001, classes=256, dense_units=200 , name ='',input_layer = 'classic'):
     inputs_dict = {}
     
     inputs  = Input(shape = (input_length,1) ,name = 'traces')
@@ -100,7 +100,7 @@ def cnn_best(input_length=1000, learning_rate=0.0001, classes=256, dense_units=1
 ### Multi-Task Models
 
 
-def cnn_multi_task(learning_rate=0.0001, classes=256, dense_units=1000):
+def cnn_multi_task(learning_rate=0.0001, classes=256, dense_units=200):
     
     inputs_dict = {}
     
@@ -147,7 +147,7 @@ def cnn_multi_task(learning_rate=0.0001, classes=256, dense_units=1000):
 
 ### Hierarchical Multi-Task Models
 
-def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=1000):
+def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=200):
     
     inputs_dict = {}
     input_traces = Input(shape=(4749, 1),name = 'traces')
@@ -220,43 +220,9 @@ def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=1000):
 def resnet_core(inputs_core,name = ''):
     
     ## First Block 
-    x = Conv1D(kernel_size=16, strides=2, filters=11, activation='selu', padding='same', kernel_regularizer =  L1L2(0.001))(inputs_core)    
+    x = Conv1D(kernel_size=32, strides=5, filters=16, activation='selu', padding='same')(inputs_core)    
     x = BatchNormalization()(x)
-    
-    x = Conv1D(kernel_size=16, strides=1, filters=11, activation='selu', padding='same', kernel_regularizer =  L1L2(0.001))(x)
-    x = BatchNormalization()(x)
-
-    skip = Conv1D(kernel_size=16, strides=1, filters=11, activation='selu', padding='same', kernel_regularizer =  L1L2(0.001))(inputs_core)
-    skip = PoolingCrop(input_dim = skip.shape[1],use_dropout=True)(skip)
-    
-    end_1 = Add()([x,skip])
-   
-    ## Second Block 
-    x = Conv1D(kernel_size=32, strides=2, filters=11, activation='selu', padding='same', kernel_regularizer =  L1L2(0.001))(end_1)  
-    x = BatchNormalization()(x)  
-
-    x = Conv1D(kernel_size=32, strides=1, filters=11, activation='selu', padding='same', kernel_regularizer =  L1L2(0.001))(x)
-    x = BatchNormalization()(x)
-
-    skip = Conv1D(kernel_size=32, strides=1, filters=11, activation='selu', padding='same', kernel_regularizer =  L1L2(0.001))(end_1)
-    skip = PoolingCrop(input_dim = skip.shape[1],use_dropout=True)(skip)
-      
-    
-    end_2 = Add()([x,skip])
-     
-    ## Third Block    
-    x = Conv1D(kernel_size=64, strides=2, filters=11, activation='selu', padding='same', kernel_regularizer =  L1L2(0.001))(end_2)  
-    x = BatchNormalization()(x)  
-
-    x = Conv1D(kernel_size=64, strides=1, filters=11, activation='selu', padding='same', kernel_regularizer =  L1L2(0.001))(x)
-    x = BatchNormalization()(x)
-
-    skip = Conv1D(kernel_size=64, strides=1, filters=11, activation='selu', padding='same', kernel_regularizer =  L1L2(0.001))(end_2)
-    skip = PoolingCrop(input_dim = skip.shape[1],use_dropout=True)(skip)
-      
-    
-    x = Add()([x,skip])
-    
+    x = AveragePooling1D(pool_size = 2)(x)
     x = Flatten()(x) 
     return x
 
@@ -266,13 +232,7 @@ def predictions_branch(input_branch,n_blocks,dense_units,name = '',reg = 0.0001,
     reg = reg
     x = input_branch
     for block in range(n_blocks):      
-        x = Dense(dense_units, activation='selu', kernel_regularizer =  L1L2(reg))(x)      
-        if not name == 'indiv':
-            x = AlphaDropout(0.05 if not '_' in name else 0.01)(x)
-        elif permutation:
-            x = AlphaDropout( 0.25)(x)
-        else:
-            x = AlphaDropout( 0.01)(x)
+        x = Dense(dense_units, activation='selu')(x)      
     x = Dense(256 if not permutation else 16, name = 'pred_{}'.format(name))(x)
     return x
 
@@ -372,7 +332,7 @@ if __name__ == "__main__":
         training_types = ['hierarchical']
         TARGETS['hierarchical'] = ['t1']
         TARGETS['multi'] = ['t1']
-        TARGETS['classical'] = ['beta'] 
+        TARGETS['classical'] = ['p','t1^rin','s1^beta','rin','alpha','beta'] 
         BYTES = ['all']   
     else:
         print('No training mode selected')
