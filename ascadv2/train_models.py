@@ -279,7 +279,7 @@ def predictions_branch(input_branch,n_blocks,dense_units,name = '',reg = 0.0001,
 #### Training high level function
 def train_model(training_type,variable,intermediate):
     epochs = 100 if not intermediate == 'alpha' else 5
-    batch_size = 250
+    batch_size = 500
     n_traces = 250000
     
     if training_type =='classical':
