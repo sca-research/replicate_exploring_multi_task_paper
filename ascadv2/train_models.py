@@ -193,7 +193,7 @@ def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=1000):
     multi_t1_1 = MultiLayer(classes = classes,name = 'multi_t1_1')([xor_rin_fixed,outputs['output_alpha']])
     multi_t1_2 = MultiLayer(classes = classes,name = 'multi_t1_2')([xor_t1_rin_fixed,outputs['output_alpha']])
     
-    pred_output = Add_Shares(name = 'Add_shares',shares = 2,input_dim = classes,units = classes)([mult_t1_from_inv_sbox_1,mult_t1_from_inv_sbox_2,multi_t1_1,multi_t1_2])
+    pred_output = Add_Shares(name = 'Add_shares',shares = 4,input_dim = classes,units = classes)([mult_t1_from_inv_sbox_1,mult_t1_from_inv_sbox_2,multi_t1_1,multi_t1_2])
     output = Softmax(name = 'output')(pred_output)
     outputs['output'] = output
 
