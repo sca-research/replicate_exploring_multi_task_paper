@@ -248,15 +248,12 @@ class Add_Shares(tf.keras.layers.Layer):
         self.shares = shares
         self.input_dim = input_dim
         self.shares = shares
-        self.selu = tf.keras.activations.selu
-        self.layer_normalization = LayerNormalization()        
+     
         
     def call(self, inputs):  
-        activated_inputs = self.selu(inputs)
-        normalised_inputs = tf.add(self.layer_normalization(activated_inputs),2)
         out = self.b        
         for share in range(self.shares):
-            out = out + tf.matmul(normalised_inputs[share],self.w[share])
+            out = out + tf.matmul(inputs[share],self.w[share])
         return out
 
     def get_config(self):
@@ -266,6 +263,7 @@ class Add_Shares(tf.keras.layers.Layer):
                   'shares' : self.shares}
         base_config = super(Add_Shares,self).get_config()
         return dict(list(base_config.items()) + list(config.items()))
+
 
 
 
