@@ -243,7 +243,7 @@ class Add_Shares(tf.keras.layers.Layer):
     def __init__(self, input_dim=256,units = 256,shares = 1,name = ''):
         super(Add_Shares, self).__init__(name = name )
         
-        self.w = self.add_weight(shape=(shares,input_dim,units), dtype="float32",trainable=True, name ='weights',  regularizer = tf.keras.regularizers.L1L2(0.002))
+        self.w = self.add_weight(shape=(shares,input_dim,units), dtype="float32",trainable=True, name ='weights',  regularizer = tf.keras.regularizers.L1L2(0.001))
         self.b = self.add_weight(shape=(units,), dtype="float32",trainable=True, name ='biases')
         self.shares = shares
         self.input_dim = input_dim
