@@ -170,30 +170,30 @@ def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=1000):
 
     
     couple_beta_fixed = [preds['pred_s1_beta'],outputs['output_beta']] 
-    #couple_s1_beta_fixed = [outputs['output_s1_beta'],preds['pred_beta']] 
+    couple_s1_beta_fixed = [outputs['output_s1_beta'],preds['pred_beta']] 
     xor_beta_fixed  = XorLayer(name = 'XorLayer_beta_fixed')(couple_beta_fixed) 
-    #xor_s1_beta_fixed  = XorLayer(name = 'XorLayer_s1_beta_fixed')(couple_s1_beta_fixed) 
+    xor_s1_beta_fixed  = XorLayer(name = 'XorLayer_s1_beta_fixed')(couple_s1_beta_fixed) 
 
     
     multi_s1_1 = MultiLayer(classes = classes,name = 'multi_s1_1')([xor_beta_fixed,outputs['output_alpha']])
-    #multi_s1_2 = MultiLayer(classes = classes,name = 'multi_s1_2')([xor_s1_beta_fixed,outputs['output_alpha']])
+    multi_s1_2 = MultiLayer(classes = classes,name = 'multi_s1_2')([xor_s1_beta_fixed,outputs['output_alpha']])
 
     mult_t1_from_inv_sbox_1 = InvSboxLayer(name = 'inv_sbox_1')(multi_s1_1)
-   # mult_t1_from_inv_sbox_2 = InvSboxLayer(name = 'inv_sbox_2')(multi_s1_2)
+    mult_t1_from_inv_sbox_2 = InvSboxLayer(name = 'inv_sbox_2')(multi_s1_2)
 
 
     couple_rin_fixed = [preds['pred_t1_rin'],outputs['output_rin']] 
-    #couple_t1_rin_fixed = [outputs['output_t1_rin'],preds['pred_rin']]
+    couple_t1_rin_fixed = [outputs['output_t1_rin'],preds['pred_rin']]
     
     xor_rin_fixed  = XorLayer(name = 'XorLayer_rin_fixed')(couple_rin_fixed) 
-    #xor_t1_rin_fixed  = XorLayer(name = 'XorLayer_t1_rin_fixed')(couple_t1_rin_fixed) 
+    xor_t1_rin_fixed  = XorLayer(name = 'XorLayer_t1_rin_fixed')(couple_t1_rin_fixed) 
     
 
     
     multi_t1_1 = MultiLayer(classes = classes,name = 'multi_t1_1')([xor_rin_fixed,outputs['output_alpha']])
-   # multi_t1_2 = MultiLayer(classes = classes,name = 'multi_t1_2')([xor_t1_rin_fixed,outputs['output_alpha']])
+    multi_t1_2 = MultiLayer(classes = classes,name = 'multi_t1_2')([xor_t1_rin_fixed,outputs['output_alpha']])
     
-    pred_output = Add_Shares(name = 'Add_shares',shares = 2,input_dim = classes,units = classes)([mult_t1_from_inv_sbox_1,multi_t1_1])
+    pred_output = Add_Shares(name = 'Add_shares',shares = 2,input_dim = classes,units = classes)([mult_t1_from_inv_sbox_1,mult_t1_from_inv_sbox_2,multi_t1_1,multi_t1_2])
     output = Softmax(name = 'output')(pred_output)
     outputs['output'] = output
 
@@ -279,7 +279,7 @@ def predictions_branch(input_branch,n_blocks,dense_units,name = '',reg = 0.0001,
 #### Training high level function
 def train_model(training_type,variable,intermediate):
     epochs = 100 if not intermediate == 'alpha' else 5
-    batch_size = 500
+    batch_size = 250
     n_traces = 250000
     
     if training_type =='classical':
