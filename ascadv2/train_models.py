@@ -235,8 +235,6 @@ def predictions_branch(input_branch,n_blocks,dense_units,name = '',reg = 0.0001,
     x = input_branch
     for block in range(n_blocks):      
         x = Dense(dense_units, activation='selu')(x)     
-        if '_' in name :
-            x = AlphaDropout(0.01)(x)
     x = Dense(256 if not permutation else 16, name = 'pred_{}'.format(name))(x)
     return x
 
