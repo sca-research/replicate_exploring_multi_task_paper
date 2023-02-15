@@ -16,7 +16,7 @@ import tensorflow as tf
 
 from tensorflow.keras.regularizers import L1L2
 from tensorflow.keras.models import Model
-from tensorflow.keras.layers import Flatten,Add,Softmax,AlphaDropout, Dense, Input,Conv1D, AveragePooling1D, BatchNormalization
+from tensorflow.keras.layers import Flatten,Add,Softmax,Multiply,AlphaDropout, Dense, Input,Conv1D, AveragePooling1D, BatchNormalization
 from tensorflow.keras.optimizers import Adam
 
 from multiprocessing import Process
@@ -194,9 +194,9 @@ def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=200):
     multi_t1_1 = MultiLayer(classes = classes,name = 'multi_t1_1')([xor_rin_fixed,outputs['output_alpha']])
     #multi_t1_2 = MultiLayer(classes = classes,name = 'multi_t1_2')([xor_t1_rin_fixed,outputs['output_alpha']])
     
-    pred_output = Add_Shares(name = 'Add_shares',shares = 2,input_dim = classes,units = classes)([mult_t1_from_inv_sbox_1,multi_t1_1])
+    # pred_output = Add_Shares(name = 'Add_shares',shares = 2,input_dim = classes,units = classes)([mult_t1_from_inv_sbox_1,multi_t1_1])
     # pred_output = Add()([mult_t1_from_inv_sbox_1,multi_t1_1])
-    output = Softmax(name = 'output')(pred_output)
+    output = Multiply(name = 'output')([Softmax()(multi_t1_1),Softmax()(mult_t1_from_inv_sbox_1)])
     outputs['output'] = output
 
     losses = {}   
@@ -236,6 +236,7 @@ def predictions_branch(input_branch,n_blocks,dense_units,name = '',reg = 0.0001,
     for block in range(n_blocks):      
         x = Dense(dense_units, activation='selu')(x)     
         if '_' in name :
+            x = BatchNormalization()(x)
             x = AlphaDropout(0.01)(x)
     x = Dense(256 if not permutation else 16, name = 'pred_{}'.format(name))(x)
     return x
