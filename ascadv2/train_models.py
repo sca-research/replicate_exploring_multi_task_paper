@@ -194,8 +194,8 @@ def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=200):
     multi_t1_1 = MultiLayer(classes = classes,name = 'multi_t1_1')([xor_rin_fixed,outputs['output_alpha']])
     #multi_t1_2 = MultiLayer(classes = classes,name = 'multi_t1_2')([xor_t1_rin_fixed,outputs['output_alpha']])
     
-    #pred_output = Add_Shares(name = 'Add_shares',shares = 2,input_dim = classes,units = classes)([mult_t1_from_inv_sbox_1,multi_t1_1])
-    pred_output = Add()([mult_t1_from_inv_sbox_1,multi_t1_1])
+    pred_output = Add_Shares(name = 'Add_shares',shares = 2,input_dim = classes,units = classes)([mult_t1_from_inv_sbox_1,multi_t1_1])
+    # pred_output = Add()([mult_t1_from_inv_sbox_1,multi_t1_1])
     output = Softmax(name = 'output')(pred_output)
     outputs['output'] = output
 
@@ -221,43 +221,10 @@ def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=200):
 
 def resnet_core(inputs_core,name = ''):
     
-    x = Conv1D(kernel_size=16, strides=2, filters=11, activation='selu', padding='same')(inputs_core)    
+    ## First Block 
+    x = Conv1D(kernel_size=8, strides=1, filters=16, activation='selu', padding='same')(inputs_core)    
     x = BatchNormalization()(x)
-    
-    x = Conv1D(kernel_size=16, strides=1, filters=11, activation='selu', padding='same')(x)
-    x = BatchNormalization()(x)
-
-    skip = Conv1D(kernel_size=16, strides=1, filters=11, activation='selu', padding='same')(inputs_core)
-    skip = PoolingCrop(input_dim = skip.shape[1],use_dropout=True)(skip)
-    
-    end_1 = Add()([x,skip])
-   
-    ## Second Block 
-    x = Conv1D(kernel_size=32, strides=2, filters=11, activation='selu', padding='same')(end_1)  
-    x = BatchNormalization()(x)  
-
-    x = Conv1D(kernel_size=32, strides=1, filters=11, activation='selu', padding='same')(x)
-    x = BatchNormalization()(x)
-
-    skip = Conv1D(kernel_size=32, strides=1, filters=11, activation='selu', padding='same')(end_1)
-    skip = PoolingCrop(input_dim = skip.shape[1],use_dropout=True)(skip)
-      
-    
-    end_2 = Add()([x,skip])
-     
-    ## Third Block    
-    x = Conv1D(kernel_size=64, strides=2, filters=11, activation='selu', padding='same')(end_2)  
-    x = BatchNormalization()(x)  
-
-    x = Conv1D(kernel_size=64, strides=1, filters=11, activation='selu', padding='same')(x)
-    x = BatchNormalization()(x)
-
-    skip = Conv1D(kernel_size=64, strides=1, filters=11, activation='selu', padding='same')(end_2)
-    skip = PoolingCrop(input_dim = skip.shape[1],use_dropout=True)(skip)
-      
-    
-    x = Add()([x,skip])
-    
+    x = AveragePooling1D(pool_size = 2)(x)
     x = Flatten()(x) 
     return x
 
@@ -268,7 +235,8 @@ def predictions_branch(input_branch,n_blocks,dense_units,name = '',reg = 0.0001,
     x = input_branch
     for block in range(n_blocks):      
         x = Dense(dense_units, activation='selu')(x)     
-        x = AlphaDropout(0.01)(x)
+        if '_' in name :
+            x = AlphaDropout(0.01)(x)
     x = Dense(256 if not permutation else 16, name = 'pred_{}'.format(name))(x)
     return x
 
@@ -365,7 +333,7 @@ if __name__ == "__main__":
         TARGETS['hierarchical'] = ['t1']
         BYTES = ['all']
     elif ALL:
-        training_types = ['hierarchical','multi']
+        training_types = ['hierarchical']
         TARGETS['hierarchical'] = ['t1']
         TARGETS['multi'] = ['t1']
         TARGETS['classical'] = ['p','t1^rin','s1^beta','rin','alpha','beta'] 
