@@ -164,9 +164,9 @@ def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=200):
         pred = predictions_branch(main_branch,2,32   if '_' in name else dense_units,name =name, permutation = name == 'permutation' )       
         preds['pred_{}'.format(name)] = pred
         
-        if not  '_' in name:
-            output = Softmax(name = 'output_{}'.format(name))(pred)
-            outputs['output_{}'.format(name)] = output
+        
+        output = Softmax(name = 'output_{}'.format(name))(pred)
+        outputs['output_{}'.format(name)] = output
 
 
     
@@ -236,8 +236,6 @@ def predictions_branch(input_branch,n_blocks,dense_units,name = '',reg = 0.0001,
     x = input_branch
     for block in range(n_blocks):      
         x = Dense(dense_units, activation='selu')(x)   
-        if '_' in name:
-            x = BatchNormalization()(x)
     x = Dense(256 if not permutation else 16, name = 'pred_{}'.format(name))(x)
     return x
 
