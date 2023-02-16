@@ -75,13 +75,9 @@ def cnn_best(input_length=1000, learning_rate=0.0001, classes=256, dense_units=2
     inputs  = Input(shape = (input_length,1) ,name = 'traces')
     inputs_dict['traces'] = inputs   
 
-    if '_' in name:
-        # Target : t1^rin, s1^beta
-        x = cnn_from_masure(inputs)
-        
-    else:
-        x = resnet_core(inputs)
-        x = predictions_branch(x,2,dense_units,name = name,permutation = name =='p')
+
+    x = resnet_core(inputs)
+    x = predictions_branch(x,2,dense_units,name = name,permutation = name =='p')
      
     output = tf.keras.layers.Softmax(name = 'output')(x)
     
@@ -335,7 +331,7 @@ if __name__ == "__main__":
         TARGETS['hierarchical'] = ['t1']
         BYTES = ['all']
     elif ALL:
-        training_types = ['hierarchical']
+        training_types = ['multi','classical']
         TARGETS['hierarchical'] = ['t1']
         TARGETS['multi'] = ['t1']
         TARGETS['classical'] = ['p','t1^rin','s1^beta','rin','alpha','beta'] 

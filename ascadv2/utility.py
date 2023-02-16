@@ -359,14 +359,14 @@ def load_dataset(target,intermediate,n_traces = None,load_masks = False,window_t
     traces , labels_dict = read_from_h5_file(n_traces=n_traces,dataset = dataset)
     traces_val = np.expand_dims(traces,2)
     X_profiling_dict = {}  
-    X_profiling_dict['traces'] = traces if intermediate in ['p','rin','alpha','beta'] else traces[:,3150:3350]
+    X_profiling_dict['traces'] = traces 
 
     
     if training:
         traces_val , labels_dict_val = read_from_h5_file(n_traces=n_traces,dataset = 'test')
         traces_val = np.expand_dims(traces_val,2)
         X_validation_dict = {}  
-        X_validation_dict['traces'] = traces_val if intermediate in ['p','rin','alpha','beta'] else traces_val[:,3150:3350]
+        X_validation_dict['traces'] = traces_val 
         
 
     Y_profiling_dict = {}
