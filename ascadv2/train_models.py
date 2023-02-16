@@ -161,7 +161,7 @@ def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=200):
     
     for name in targets_name:
 
-        pred = predictions_branch(main_branch,2,dense_units,name =name, permutation = name == 'permutation' )       
+        pred = predictions_branch(main_branch,2,dense_units * 5  if '_' in name else dense_units,name =name, permutation = name == 'permutation' )       
         preds['pred_{}'.format(name)] = pred
         
 
@@ -223,7 +223,7 @@ def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=200):
 def resnet_core(inputs_core,name = ''):
     
     ## First Block 
-    x = Conv1D(kernel_size=8, strides=1, filters=16, activation='selu', padding='same')(inputs_core)    
+    x = Conv1D(kernel_size=16, strides=1, filters=16, activation='selu', padding='same')(inputs_core)    
     x = BatchNormalization()(x)
     x = AveragePooling1D(pool_size = 2)(x)
     x = Flatten()(x) 
