@@ -109,7 +109,8 @@ def cnn_multi_task(learning_rate=0.0001, classes=256, dense_units=200):
 
 
     preds = {}
-    outputs = {}    
+    outputs = {}   
+    weights = {}
     main_branch = resnet_core(input_traces,name = 'main_branch')
     targets_name  = ['alpha','beta','rin','t1_rin','s1_beta','permutation']
     for name in targets_name:
@@ -119,17 +120,18 @@ def cnn_multi_task(learning_rate=0.0001, classes=256, dense_units=200):
         
         output = Softmax(name = 'output_{}'.format(name))(pred)
         outputs['output_{}'.format(name)] = output
+        
 
 
 
     losses = {}   
-    weights = {}
+    
 
 
 
     for k , v in outputs.items():
         losses[k] = 'categorical_crossentropy'
-        weights[k] = 1
+        weights[k] = 1 if not '_' in k else 0.1
     
 
 
