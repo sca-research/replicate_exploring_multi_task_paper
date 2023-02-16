@@ -131,7 +131,7 @@ def cnn_multi_task(learning_rate=0.0001, classes=256, dense_units=200):
 
     for k , v in outputs.items():
         losses[k] = 'categorical_crossentropy'
-        weights[k] = 1 if not '_' in k else 0.1
+        weights[k] = 1 
     
 
 
@@ -163,7 +163,7 @@ def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=200):
     
     for name in targets_name:
 
-        pred = predictions_branch(main_branch,2,32   if '_' in name else dense_units,name =name, permutation = name == 'permutation' )       
+        pred = predictions_branch(main_branch,2,512   if '_' in name else dense_units,name =name, permutation = name == 'permutation' )       
         preds['pred_{}'.format(name)] = pred
         
         
@@ -203,12 +203,13 @@ def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=200):
     outputs['output'] = output
 
     losses = {}   
-
+    weights = {}
 
 
 
     for k , v in outputs.items():
         losses[k] = 'categorical_crossentropy' 
+        weights[k] = 1 if not '_' in k else 0.1
 
     
 
