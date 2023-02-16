@@ -209,7 +209,7 @@ def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=200):
 
     for k , v in outputs.items():
         losses[k] = 'categorical_crossentropy' 
-        weights[k] = 1 if not '_' in k else 0.1
+        weights[k] = 1 if not '_' in k else 0.25
 
     
 
