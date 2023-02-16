@@ -161,7 +161,7 @@ def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=200):
     
     for name in targets_name:
 
-        pred = predictions_branch(main_branch,2,dense_units * 5  if '_' in name else dense_units,name =name, permutation = name == 'permutation' )       
+        pred = predictions_branch(main_branch,2,dense_units * 2  if '_' in name else dense_units,name =name, permutation = name == 'permutation' )       
         preds['pred_{}'.format(name)] = pred
         
 
