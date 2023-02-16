@@ -68,7 +68,7 @@ class PoolingCrop(tf.keras.layers.Layer):
             name = 'Crop_'+str(np.random.randint(0,high = 99999))
         super(PoolingCrop, self).__init__(name = name )
         self.w = self.add_weight(shape=(input_dim,1), dtype="float32",
-                                  trainable=True,name = 'weights'+name,  regularizer = tf.keras.regularizers.L1L2(0.001)
+                                  trainable=True,name = 'weights'+name,  regularizer = tf.keras.regularizers.L2(0.001)
                                   
         )
         self.input_dim = input_dim
