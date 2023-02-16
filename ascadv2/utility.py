@@ -68,7 +68,7 @@ class PoolingCrop(tf.keras.layers.Layer):
             name = 'Crop_'+str(np.random.randint(0,high = 99999))
         super(PoolingCrop, self).__init__(name = name )
         self.w = self.add_weight(shape=(input_dim,1), dtype="float32",
-                                  trainable=True,name = 'weights'+name,  regularizer = tf.keras.regularizers.L2(0.001)
+                                  trainable=True,name = 'weights'+name,  regularizer = tf.keras.regularizers.L1L2(0.001)
                                   
         )
         self.input_dim = input_dim
@@ -504,8 +504,8 @@ def load_dataset_hierarchical(n_traces = 250000,dataset = 'training',encoded_lab
     Y_profiling_dict['output_alpha'] = get_hot_encode(real_values_alpha) if encoded_labels else  real_values_alpha       
     real_values_rin = np.array(labels_dict['rin'],dtype = np.uint8)[:n_traces]
     Y_profiling_dict['output_rin'] = get_hot_encode(real_values_rin) if encoded_labels else  real_values_rin 
-    Y_profiling_dict['output_t1_rin'] = get_hot_encode(real_values_t1_rin) if encoded_labels else  real_values_t1_rin 
-    Y_profiling_dict['output_s1_beta'] = get_hot_encode(real_values_s1_beta) if encoded_labels else  real_values_s1_beta
+    #Y_profiling_dict['output_t1_rin'] = get_hot_encode(real_values_t1_rin) if encoded_labels else  real_values_t1_rin 
+    #Y_profiling_dict['output_s1_beta'] = get_hot_encode(real_values_s1_beta) if encoded_labels else  real_values_s1_beta
     Y_profiling_dict['output_permutation'] = get_hot_encode(permutations,classes = 16) if encoded_labels else  permutations
     Y_profiling_dict['output'] = get_hot_encode(real_values_t1) if encoded_labels else  real_values_t1
 
@@ -525,8 +525,8 @@ def load_dataset_hierarchical(n_traces = 250000,dataset = 'training',encoded_lab
         real_values_rin_val = np.array(labels_dict_val['rin'],dtype = np.uint8)
         Y_validation_dict['output_rin'] = get_hot_encode(real_values_rin_val) if encoded_labels else  real_values_rin_val          
         
-        Y_validation_dict['output_t1_rin'] = get_hot_encode(real_values_t1_rin_val) if encoded_labels else  real_values_t1_rin_val 
-        Y_validation_dict['output_s1_beta'] = get_hot_encode(real_values_s1_beta_val) if encoded_labels else  real_values_s1_beta_val
+        #Y_validation_dict['output_t1_rin'] = get_hot_encode(real_values_t1_rin_val) if encoded_labels else  real_values_t1_rin_val 
+        # Y_validation_dict['output_s1_beta'] = get_hot_encode(real_values_s1_beta_val) if encoded_labels else  real_values_s1_beta_val
         Y_validation_dict['output_permutation'] = get_hot_encode(permutations_val,classes = 16) if encoded_labels else  permutations_val
         Y_validation_dict['output'] = get_hot_encode(real_values_t1_val) if encoded_labels else  real_values_t1_val
 
