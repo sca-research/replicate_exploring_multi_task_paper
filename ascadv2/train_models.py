@@ -168,7 +168,7 @@ def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=200):
 
 
     
-    couple_beta_fixed = [preds['pred_s1_beta'],outputs['output_beta']] 
+    couple_beta_fixed = [outputs['output_s1_beta'],outputs['output_beta']] 
     #
     #couple_s1_beta_fixed = [outputs['output_s1_beta'],preds['pred_beta']] 
     xor_beta_fixed  = XorLayer(name = 'XorLayer_beta_fixed')(couple_beta_fixed) 
@@ -182,7 +182,7 @@ def cnn_hierarchical(learning_rate=0.0001, classes=256, dense_units=200):
     #mult_t1_from_inv_sbox_2 = InvSboxLayer(name = 'inv_sbox_2')(multi_s1_2)
 
 
-    couple_rin_fixed = [preds['pred_t1_rin'],outputs['output_rin']] 
+    couple_rin_fixed = [outputs['output_t1_rin'],outputs['output_rin']] 
     #couple_t1_rin_fixed = [outputs['output_t1_rin'],preds['pred_rin']]
     
     xor_rin_fixed  = XorLayer(name = 'XorLayer_rin_fixed')(couple_rin_fixed) 
