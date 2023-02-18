@@ -27,7 +27,7 @@ np.random.seed(seed)
 
 
 class Attack:
-    def __init__(self,n_experiments = 1,individual = False,multi = False,hierarchical = False, traces_used = 200000,target = 't'):
+    def __init__(self,n_experiments = 1,individual = False,multi = False,hierarchical = False, traces_used = 200000,target = 't',known_perm = False):
         
         self.models = {}
         self.individual = individual
@@ -179,9 +179,15 @@ class Attack:
                 
         
             for byte in range(16):
-                for byte_perm in range(16):
-                    self.predictions[byte_perm][batch_size*batch:batch_size*(batch +1)] = tf.add(self.predictions[byte_perm,batch_size*batch:batch_size*(batch +1)], tf.expand_dims(predictions_permutation[byte,batch_size*batch:batch_size*(batch +1),byte_perm],1) * predictions_non_permuted[byte,batch_size*batch:batch_size*(batch +1)] ) 
-        
+                if known_perm:
+                    
+                
+                    self.predictions[self.permutations[batch_size*batch:batch_size*(batch +1),byte]][batch_size*batch:batch_size*(batch +1)] =  predictions_non_permuted[self.permutations[batch_size*batch:batch_size*(batch +1),byte],batch_size*batch:batch_size*(batch +1)] 
+                            
+                else:
+                    for byte_perm in range(16):
+                        self.predictions[byte_perm][batch_size*batch:batch_size*(batch +1)] = tf.add(self.predictions[byte_perm,batch_size*batch:batch_size*(batch +1)], tf.expand_dims(predictions_permutation[byte,batch_size*batch:batch_size*(batch +1),byte_perm],1) * predictions_non_permuted[byte,batch_size*batch:batch_size*(batch +1)] ) 
+            
         for batch in tqdm(range(self.n_total_attack_traces// batch_size)):
             for byte in range(16):                   
         
@@ -285,6 +291,7 @@ if __name__ == "__main__":
                         type=int, default=1000)
     parser.add_argument('-traces', action="store", dest="TRACES", help='Number of Epochs in Training (default: 75 CNN, 100 MLP)',
                         type=int, default=1000)
+    parser.add_argument('--KNOWN_PERMUTATION', action="store_true", dest="PERM", help='for attack dataset', default=False)
     parser.add_argument('--INDIV', action="store_true", dest="INDIV", help='for attack dataset', default=False)
     parser.add_argument('--MULTI', action="store_true", dest="MULTI", help='for attack dataset', default=False)
     parser.add_argument('--HIERARCHICAL', action="store_true", dest="HIERARCHICAL", help='for attack dataset', default=False)
@@ -299,13 +306,14 @@ if __name__ == "__main__":
     EXPERIMENT = args.EXPERIMENT
     INDIV = args.INDIV
     TRACES = args.TRACES
+    PERM = args.PERM
     MULTI = args.MULTI
     HIERARCHICAL = args.HIERARCHICAL
     TARGET = args.TARGET
     
     
 
-    attack = Attack(n_experiments = EXPERIMENT,individual= INDIV,multi = MULTI,hierarchical = HIERARCHICAL,traces_used = TRACES,target = TARGET)
+    attack = Attack(n_experiments = EXPERIMENT,individual= INDIV,multi = MULTI,hierarchical = HIERARCHICAL,traces_used = TRACES"",target = TARGET,known_perm = PERM)
     attack.run()
                   
                             
