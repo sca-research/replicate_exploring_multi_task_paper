@@ -88,7 +88,7 @@ class Attack:
         self.correct_guesses = {}
         self.history_score = {}
         self.traces_per_exp = 100
-        self.n_total_attack_traces = 200000
+        self.n_total_attack_traces = 10000
         self.predictions = np.zeros((16,self.n_total_attack_traces,256))
         predictions_non_permuted = np.empty((16,self.n_total_attack_traces,256))
         predictions_permutation = np.empty((16,self.n_total_attack_traces,16))
