@@ -182,7 +182,7 @@ class Attack:
                 if known_perm:
                     for byte_perm in range(16):
                         
-                        self.predictions[byte_perm][batch_size*batch:batch_size*(batch +1)] = tf.add(get_hot_encode(self.predictions[batch_size*batch:batch_size*(batch +1),byte],16)[:,byte_perm], tf.expand_dims( self.permutations[batch_size*batch:batch_size*(batch +1),byte],1) * predictions_non_permuted[byte,batch_size*batch:batch_size*(batch +1)] ) 
+                        self.predictions[byte_perm][batch_size*batch:batch_size*(batch +1)] = tf.add(get_hot_encode(self.permutations[batch_size*batch:batch_size*(batch +1),byte],16)[:,byte_perm], tf.expand_dims( self.permutations[batch_size*batch:batch_size*(batch +1),byte],1) * predictions_non_permuted[byte,batch_size*batch:batch_size*(batch +1)] ) 
                                 
                 else:
                     for byte_perm in range(16):
