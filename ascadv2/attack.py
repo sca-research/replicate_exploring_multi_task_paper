@@ -182,7 +182,7 @@ class Attack:
                 if known_perm:
                     
                 
-                    self.predictions[self.permutations[batch_size*batch:batch_size*(batch +1),byte]][batch_size*batch:batch_size*(batch +1)] =  predictions_non_permuted[self.permutations[batch_size*batch:batch_size*(batch +1),byte],batch_size*batch:batch_size*(batch +1)] 
+                    self.predictions[self.permutations[batch_size*batch:batch_size*(batch +1),byte]][batch_size*batch:batch_size*(batch +1)] =  predictions_non_permuted[batch_size*batch:batch_size*(batch +1)][self.permutations[batch_size*batch:batch_size*(batch +1),byte]]
                             
                 else:
                     for byte_perm in range(16):
