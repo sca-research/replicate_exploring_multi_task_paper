@@ -107,7 +107,7 @@ class Attack:
                           0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF ]  
         
         self.alpha = np.array(labels_dict['alpha'],dtype = np.uint8)[:self.n_total_attack_traces]
-        self.permutations = get_hot_encode(np.array(labels_dict['p'],dtype = np.uint8)[:self.n_total_attack_traces],16)
+        self.permutations = np.array(labels_dict['p'],dtype = np.uint8)[:self.n_total_attack_traces]
         self.plaintexts = plaintexts
         # encoded_plaintexts = np.array([get_hot_encode(self.plaintexts[:,byte]) for byte in range(16)],dtype = np.float32)
         # encoded_plaintexts = np.swapaxes(encoded_plaintexts, 1, 0)
@@ -182,7 +182,7 @@ class Attack:
                 if known_perm:
                     for byte_perm in range(16):
                         
-                        self.predictions[byte_perm][batch_size*batch:batch_size*(batch +1)] = tf.add(self.predictions[byte_perm,batch_size*batch:batch_size*(batch +1)], tf.expand_dims( self.permutations[batch_size*batch:batch_size*(batch +1),byte],1) * predictions_non_permuted[byte,batch_size*batch:batch_size*(batch +1)] ) 
+                        self.predictions[byte_perm][batch_size*batch:batch_size*(batch +1)] = tf.add(get_hot_encode(self.predictions[batch_size*batch:batch_size*(batch +1),byte],16)[:,byte_perm], tf.expand_dims( self.permutations[batch_size*batch:batch_size*(batch +1),byte],1) * predictions_non_permuted[byte,batch_size*batch:batch_size*(batch +1)] ) 
                                 
                 else:
                     for byte_perm in range(16):
