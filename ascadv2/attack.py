@@ -313,7 +313,7 @@ if __name__ == "__main__":
     
     
 
-    attack = Attack(n_experiments = EXPERIMENT,individual= INDIV,multi = MULTI,hierarchical = HIERARCHICAL,traces_used = TRACES"",target = TARGET,known_perm = PERM)
+    attack = Attack(n_experiments = EXPERIMENT,individual= INDIV,multi = MULTI,hierarchical = HIERARCHICAL,traces_used = TRACES,target = TARGET,known_perm = PERM)
     attack.run()
                   
                             
