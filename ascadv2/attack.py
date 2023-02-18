@@ -27,10 +27,11 @@ np.random.seed(seed)
 
 
 class Attack:
-    def __init__(self,n_experiments = 1,individual = False,multi = False,hierarchical = False,target = 't'):
+    def __init__(self,n_experiments = 1,individual = False,multi = False,hierarchical = False, traces_used = 200000,target = 't'):
         
         self.models = {}
         self.individual = individual
+        self.traces_used = traces_used
         self.multi = multi
         self.hierarchical = hierarchical
         self.target = target
@@ -84,11 +85,11 @@ class Attack:
             0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16,
             )
         
-        traces , labels_dict, metadata = read_from_h5_file(n_traces = 200000,dataset = 'attack',load_plaintexts = True)
+        traces , labels_dict, metadata = read_from_h5_file(n_traces = self.traces_used,dataset = 'attack',load_plaintexts = True)
         self.correct_guesses = {}
         self.history_score = {}
         self.traces_per_exp = 100
-        self.n_total_attack_traces = 10000
+        self.n_total_attack_traces = self.traces_used
         self.predictions = np.zeros((16,self.n_total_attack_traces,256))
         predictions_non_permuted = np.empty((16,self.n_total_attack_traces,256))
         predictions_permutation = np.empty((16,self.n_total_attack_traces,16))
@@ -282,6 +283,8 @@ if __name__ == "__main__":
 
     parser.add_argument('-e', '-experiment', action="store", dest="EXPERIMENT", help='Number of Epochs in Training (default: 75 CNN, 100 MLP)',
                         type=int, default=1000)
+    parser.add_argument('-traces', action="store", dest="TRACES", help='Number of Epochs in Training (default: 75 CNN, 100 MLP)',
+                        type=int, default=1000)
     parser.add_argument('--INDIV', action="store_true", dest="INDIV", help='for attack dataset', default=False)
     parser.add_argument('--MULTI', action="store_true", dest="MULTI", help='for attack dataset', default=False)
     parser.add_argument('--HIERARCHICAL', action="store_true", dest="HIERARCHICAL", help='for attack dataset', default=False)
@@ -295,13 +298,14 @@ if __name__ == "__main__":
 
     EXPERIMENT = args.EXPERIMENT
     INDIV = args.INDIV
+    TRACES = args.TRACES
     MULTI = args.MULTI
     HIERARCHICAL = args.HIERARCHICAL
     TARGET = args.TARGET
     
     
 
-    attack = Attack(n_experiments = EXPERIMENT,individual= INDIV,multi = MULTI,hierarchical = HIERARCHICAL,target = TARGET)
+    attack = Attack(n_experiments = EXPERIMENT,individual= INDIV,multi = MULTI,hierarchical = HIERARCHICAL,traces_used = TRACES,target = TARGET)
     attack.run()
                   
                             
