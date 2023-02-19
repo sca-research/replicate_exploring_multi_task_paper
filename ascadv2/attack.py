@@ -42,7 +42,7 @@ class Attack:
             if target == 's':
                 model_struct =  cnn_best(input_length=4749)
                 self.models['beta'] =  load_model_from_target(model_struct,'beta') 
-                model_struct_intermediate =  cnn_best(input_length=200,name = '_') 
+                model_struct_intermediate =  cnn_best(input_length=4749,name = '_') 
                 self.models['s1_beta'] = load_model_from_target(model_struct_intermediate,'s1^beta') 
                 
             else:
